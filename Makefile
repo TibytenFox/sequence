@@ -1,8 +1,5 @@
-app: main.o
-	g++ main.o -o app
-
-main.o: main.cpp dynamic_array.h
-	g++ -c main.cpp
+app: main.cpp
+	g++ main.cpp -o app
 
 clean:
 	rm -f *.o app

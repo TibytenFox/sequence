@@ -1,6 +1,6 @@
 #include <iostream>
-#include "array_sequance.h"
-#include "list_sequance.h"
+#include "array_sequence.h"
+#include "list_sequence.h"
 
 template <typename Seq>
 void printSequence(const Seq& seq, const std::string& name) {
@@ -12,12 +12,12 @@ void printSequence(const Seq& seq, const std::string& name) {
 }
 
 int main() {
-    // ---------- Test ArraySequance ----------
-    std::cout << "=== ArraySequance<int> ===" << std::endl;
+    // ---------- Test ArraySequence ----------
+    std::cout << "=== ArraySequence<int> ===" << std::endl;
 
     // Create from C-array
     int initArr[] = {10, 20, 30};
-    ArraySequance<int> arrSeq(initArr, 3);
+    ArraySequence<int> arrSeq(initArr, 3);
     printSequence(arrSeq, "Initial");
 
     std::cout << "First: " << arrSeq.GetFirst() << ", Last: " << arrSeq.GetLast() << std::endl;
@@ -29,25 +29,25 @@ int main() {
     printSequence(arrSeq, "After Append(40), Prepend(5), InsertAt(25,2)");
 
     // Get subsequence
-    ArraySequance<int>* subArr = arrSeq.GetSubSequance(1, 4);
+    ArraySequence<int>* subArr = arrSeq.GetSubSequence(1, 4);
     printSequence(*subArr, "SubSequence [1..4]");
     delete subArr;
 
     // Concat
     int otherArr[] = {100, 200};
-    ArraySequance<int> otherSeq(otherArr, 2);
-    ArraySequance<int>* concatArr = arrSeq.Concat(&otherSeq);
+    ArraySequence<int> otherSeq(otherArr, 2);
+    ArraySequence<int>* concatArr = arrSeq.Concat(&otherSeq);
     printSequence(*concatArr, "Concatenation with [100,200]");
     delete concatArr;
 
     std::cout << std::endl;
 
-    // ---------- Test ListSequance ----------
-    std::cout << "=== ListSequance<int> ===" << std::endl;
+    // ---------- Test ListSequence ----------
+    std::cout << "=== ListSequence<int> ===" << std::endl;
 
     // Create from C-array
     int initList[] = {1, 2, 3, 4};
-    ListSequance<int> listSeq(initList, 4);
+    ListSequence<int> listSeq(initList, 4);
     printSequence(listSeq, "Initial");
 
     std::cout << "First: " << listSeq.GetFirst() << ", Last: " << listSeq.GetLast() << std::endl;
@@ -59,14 +59,14 @@ int main() {
     printSequence(listSeq, "After Append(5), Prepend(0), InsertAt(99,3)");
 
     // Get subsequence
-    ListSequance<int>* subList = listSeq.GetSubSequance(2, 5);
+    ListSequence<int>* subList = listSeq.GetSubSequence(2, 5);
     printSequence(*subList, "SubSequence [2..5]");
     delete subList;
 
     // Concat
     int otherList[] = {10, 20};
-    ListSequance<int> otherListSeq(otherList, 2);
-    ListSequance<int>* concatList = listSeq.Concat(&otherListSeq);
+    ListSequence<int> otherListSeq(otherList, 2);
+    ListSequence<int>* concatList = listSeq.Concat(&otherListSeq);
     printSequence(*concatList, "Concatenation with [10,20]");
     delete concatList;
 
