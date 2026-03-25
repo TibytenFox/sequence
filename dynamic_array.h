@@ -8,14 +8,18 @@ private:
     T *data;
     int size;
 public:
+    DynamicArray();
     DynamicArray(int s);
     DynamicArray(T *items, int count);
     DynamicArray(const DynamicArray &other);
+    ~DynamicArray();
+
     T Get(int index) const;
     int GetSize() const;
     void Set(int index, T value);
     void Resize(int new_size);
-    ~DynamicArray();
+
+    DynamicArray<T> &operator=(const DynamicArray<T> &other);
 };
 
 #include "dynamic_array.tpp"

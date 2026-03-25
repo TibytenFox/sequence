@@ -1,10 +1,18 @@
 #include "dynamic_array.h"
 
+// ---------- Constructors and Destructor ----------
 template <class T>
-DynamicArray<T>::DynamicArray(int s) : size(s), data(new T[s]()) {}
+DynamicArray<T>::DynamicArray() : size(0), data(new T[0]()) {}
+
+template <class T>
+DynamicArray<T>::DynamicArray(int s) : size(s) {
+    if (s <= 0) throw std::invalid_argument("Size must be positive");
+    data = new T[size]();
+}
 
 template <class T>
 DynamicArray<T>::DynamicArray(T *items, int count) : DynamicArray(count) {
+    if (count < 0) throw std::invalid_argument("Count must be non-negative");
     std::copy(items, items + count, data);
 }
 
@@ -13,6 +21,10 @@ DynamicArray<T>::DynamicArray(const DynamicArray &other) : DynamicArray(other.si
     std::copy(other.data, other.data + size, data);
 }
 
+template <class T>
+DynamicArray<T>::~DynamicArray() { delete[] data; }
+
+// ---------- Getters and Setters ----------
 template <class T>
 T DynamicArray<T>::Get(int index) const {
     if (index < 0 || index >= size) throw std::out_of_range("Index out of range");
@@ -40,5 +52,16 @@ void DynamicArray<T>::Resize(int new_size) {
     size = new_size;
 }
 
+// ---------- Operators ----------
 template <class T>
-DynamicArray<T>::~DynamicArray() { delete[] data; }
+DynamicArray<T> &DynamicArray<T>::operator=(const DynamicArray<T> &other) {
+    if (this != &other) {
+        size = other.size;
+
+        if (data) delete[] data;
+        data = new T[size]();
+
+        std::copy(other.data, other.data + size, data);
+    }
+    return *this;
+}
