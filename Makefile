@@ -3,7 +3,7 @@ DECLARATIONS = ./sequence/sequence.h ./sequence/array_sequence.h ./sequence/list
 app: main.cpp $(DECLARATIONS) dynamic_array.h linked_list.h
 	g++ main.cpp -o app
 
-clean:
+clear:
 	rm -f *.o app
 
 run: app

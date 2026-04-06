@@ -58,6 +58,12 @@ int main() {
     listSeq.InsertAt(99, 3);  // insert 99 at index 3
     printSequence(listSeq, "After Append(5), Prepend(0), InsertAt(99,3)");
 
+    std::cout << '\n';
+    for (int x : listSeq) {
+        std::cout << x << ' ';
+    }
+    std::cout << '\n';
+
     // Get subsequence
     ListSequence<int>* subList = listSeq.GetSubSequence(2, 5);
     printSequence(*subList, "SubSequence [2..5]");
@@ -66,7 +72,7 @@ int main() {
     // Concat
     int otherList[] = {10, 20};
     MutableListSequence<int> otherListSeq(otherList, 2);
-    ListSequence<int>* concatList = listSeq.Concat(&otherListSeq);
+    ListSequence<int> *concatList = listSeq.Concat(&otherListSeq);
     printSequence(*concatList, "Concatenation with [10,20]");
     delete concatList;
 

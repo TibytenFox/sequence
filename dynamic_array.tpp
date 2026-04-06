@@ -6,7 +6,7 @@ DynamicArray<T>::DynamicArray() : size(0), data(new T[0]()) {}
 
 template <class T>
 DynamicArray<T>::DynamicArray(int s) : size(s) {
-    if (s <= 0) throw std::invalid_argument("Size must be positive");
+    if (s < 0) throw std::invalid_argument("Size must be positive");
     data = new T[size]();
 }
 
@@ -42,7 +42,7 @@ void DynamicArray<T>::Set(int index, T value) {
 
 template <class T>
 void DynamicArray<T>::Resize(int new_size) {
-    if (new_size <= 0) throw std::invalid_argument("Size must be positive");
+    if (new_size < 0) throw std::invalid_argument("Size must be positive");
     T *new_data = new T[new_size];
     for (int i = 0; i < ((size < new_size) ? size : new_size); i++) {
         new_data[i] = data[i];

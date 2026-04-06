@@ -6,11 +6,35 @@ template <class T>
 class ArraySequence : public Sequence<T> {
 private:
     DynamicArray<T> items;
+
+    class ArraySequenceIterator {
+    public:
+        using ValueType = T;
+        using PointerType = ValueType*;
+        using ReferenceType = ValueType&;
+
+        ArraySequenceIterator(PointerType ptr);
+        ArraySequenceIterator &operator++();
+        ArraySequenceIterator &operator+=(int n);
+        ArraySequenceIterator operator++(int);
+        ArraySequenceIterator &operator--();
+        ArraySequenceIterator &operator-=(int n);
+        ArraySequenceIterator operator--(int);
+        PointerType operator->();
+        ReferenceType operator*();
+        bool operator==(const ArraySequenceIterator &other) const;
+        bool operator!=(const ArraySequenceIterator &other) const;
+    private:
+        PointerType current;
+    };
 protected:
     ArraySequence<T> *AppendInternal(T item);
     ArraySequence<T> *PrependInternal(T item);
     ArraySequence<T> *InsertAtInternal(T item, int index);
     ArraySequence<T> *ConcatInternal(Sequence<T> *list);
+    ArraySequence<T> *MapInternal(T (*func)(T));
+    ArraySequence<T> *WhereInternal(bool (*predicate)(T));
+    T ReduceInternal(T (*func)(T, T), T initial);
 public:
     ArraySequence();
     ArraySequence(T *items, int count);
@@ -27,7 +51,23 @@ public:
     ArraySequence<T> *InsertAt(T item, int index) override;
     ArraySequence<T> *Concat(Sequence<T> *list) override;
 
+    ArraySequence<T> *Map(T (*func)(T)) override;
+    ArraySequence<T> *Where(bool (*predicate)(T)) override;
+    T Reduce(T (*func)(T, T), T initial) override;
+
+    ArraySequenceIterator begin();
+    ArraySequenceIterator end();
+
     ArraySequence<T> &operator=(const ArraySequence<T> &other);
+    ArraySequence<T> &operator=(std::initializer_list<T> init_list);
+    bool operator==(const ArraySequence<T> &other) const;
+    bool operator!=(const ArraySequence<T> &other) const;
+    T &operator[](int index);
+    const T &operator[](int index) const;
+    ArraySequence<T> &operator+(const ArraySequence<T> &other) const;
+    ArraySequence<T> &operator+=(const T &value);
+    ArraySequence<T> &operator+=(const ArraySequence<T> &other);
+    friend std::ostream &operator<<(std::ostream &os, const ArraySequence<T> &seq);
 
     virtual ArraySequence<T> *Instance() { return this; }
 };

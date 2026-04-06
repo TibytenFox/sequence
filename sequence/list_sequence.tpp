@@ -33,13 +33,12 @@ ListSequence<T> *ListSequence<T>::GetSubSequence(int start_index, int end_index)
     }
 
     // Create a temporary C-array to hold the subsequence items
-    LinkedList<T> *sub_items = items.GetSubList(start_index, end_index);
     ListSequence<T> *sub_sequence = new ListSequence<T>();
-    for (int i = 0; i < sub_items->GetLength(); i++) {
+    int new_size = end_index - start_index + 1;
+    for (int i = 0; i < new_size; i++) {
         // Using sub_sequence->items.Append() directly to avoid using the public Append method which may not modify the current instance
-        sub_sequence->items.Append(sub_items->Get(i));
+        sub_sequence->items.Append(items.Get(start_index + i));
     }
-    delete sub_items;
     return sub_sequence;
 }
 
@@ -63,6 +62,21 @@ ListSequence<T> *ListSequence<T>::Concat(Sequence<T> *list) {
     return Instance()->ConcatInternal(list);
 }
 
+template <class T>
+ListSequence<T> *ListSequence<T>::Map(T (*func)(T)) {
+    return Instance()->MapInternal(func);
+}
+
+template <class T>
+ListSequence<T> *ListSequence<T>::Where(bool (*predicate)(T)) {
+    return Instance()->WhereInternal(predicate);
+}  
+
+template <class T>
+T ListSequence<T>::Reduce(T (*func)(T, T), T initial) {
+    return Instance()->ReduceInternal(func, initial);
+}
+
 // ---------- Internal Methods ----------
 template <class T>
 ListSequence<T> *ListSequence<T>::AppendInternal(T item) { 
@@ -84,13 +98,122 @@ ListSequence<T> *ListSequence<T>::InsertAtInternal(T item, int index) {
 
 template <class T>
 ListSequence<T> *ListSequence<T>::ConcatInternal(Sequence<T> *list) {
-    // Create a temporary C-array to hold the subsequence items
+     // Create a temporary C-array to hold the subsequence items
     ListSequence<T> *new_sequence = new ListSequence<T>(*this);
     for (int i = 0; i < list->GetLength(); i++) {
         // Using sub_sequence->items.Append() directly to avoid using the public Append method which may not modify the current instance
         new_sequence->items.Append(list->Get(i));
     }
     return new_sequence;
+}
+
+template <class T>
+ListSequence<T> *ListSequence<T>::MapInternal(T (*func)(T)) {
+    ListSequence<T> *mapped_sequence = new ListSequence<T>();
+    for (int i = 0; i < GetLength(); i++) {
+        mapped_sequence->AppendInternal(func(Get(i)));
+    }
+    *this = *mapped_sequence;
+    delete mapped_sequence;
+    return this;
+}
+
+template <class T>
+ListSequence<T> *ListSequence<T>::WhereInternal(bool (*predicate)(T)) {
+    ListSequence<T> *filtered_sequence = new ListSequence<T>();
+    for (int i = 0; i < GetLength(); i++) {
+        if (predicate(Get(i))) filtered_sequence->AppendInternal(Get(i));
+    }
+    *this = *filtered_sequence;
+    delete filtered_sequence;
+    return this;
+}
+
+template <class T>
+T ListSequence<T>::ReduceInternal(T (*func)(T, T), T initial) {
+    T result = initial;
+    for (int i = 0; i < GetLength(); i++) {
+        result = func(result, Get(i));
+    }
+    return result;
+}
+
+// ---------- Iterators ----------
+template <class T>
+ListSequence<T>::ListSequenceIterator::ListSequenceIterator(NodePointerType ptr) : current(ptr) {}
+
+template <class T>
+typename ListSequence<T>::ListSequenceIterator &ListSequence<T>::ListSequenceIterator::operator++() {
+    current = current->next;
+    return *this;
+}
+
+template <class T>
+typename ListSequence<T>::ListSequenceIterator &ListSequence<T>::ListSequenceIterator::operator+=(int n) {
+    for (int i = 0; i < n; i++) {
+        if (current == nullptr) break;
+        current = current->next;
+    }
+    return *this;
+}
+
+template <class T>
+typename ListSequence<T>::ListSequenceIterator ListSequence<T>::ListSequenceIterator::operator++(int) {
+    ListSequenceIterator tmp = *this; 
+    ++current; 
+    return tmp;
+}
+
+template <class T>
+typename ListSequence<T>::ListSequenceIterator &ListSequence<T>::ListSequenceIterator::operator--() {
+    current = current->prev;
+    return *this;
+}
+
+template <class T>
+typename ListSequence<T>::ListSequenceIterator &ListSequence<T>::ListSequenceIterator::operator-=(int n) {
+    for (int i = 0; i < n; i++) {
+        if (current == nullptr) break;
+        current = current->prev;
+    }
+    return *this;
+}
+
+template <class T>
+typename ListSequence<T>::ListSequenceIterator ListSequence<T>::ListSequenceIterator::operator--(int) {
+    ListSequenceIterator tmp = *this; 
+    --current; 
+    return tmp;
+}
+
+template <class T>
+typename ListSequence<T>::ListSequenceIterator::PointerType ListSequence<T>::ListSequenceIterator::operator->() {
+    return &(current->value);
+}
+
+template <class T>
+typename ListSequence<T>::ListSequenceIterator::ReferenceType ListSequence<T>::ListSequenceIterator::operator*() {
+    return current->value;
+}
+
+template <class T>
+bool ListSequence<T>::ListSequenceIterator::operator==(const ListSequenceIterator &other) const {
+    return current == other.current;
+}
+
+template <class T>
+bool ListSequence<T>::ListSequenceIterator::operator!=(const ListSequenceIterator &other) const {
+    return !(current == other.current);
+}
+
+template <class T>
+typename ListSequence<T>::ListSequenceIterator ListSequence<T>::begin() {
+    return ListSequenceIterator(items.GetHead());
+}
+
+template <class T>
+typename ListSequence<T>::ListSequenceIterator ListSequence<T>::end() {
+    return ListSequenceIterator(items.GetTail()->next);
 }
 
 // ---------- Operators ----------
@@ -100,6 +223,81 @@ ListSequence<T> &ListSequence<T>::operator=(const ListSequence<T> &other) {
         items = other.items;
     }
     return *this;
+}
+
+template <class T>
+ListSequence<T> &ListSequence<T>::operator=(std::initializer_list<T> init_list) {
+    if (&items != nullptr) delete &items;
+
+    for (const T &item : init_list) {
+       this->Append(item);
+    }
+    return *this;
+}
+
+template <class T>
+bool ListSequence<T>::operator==(const ListSequence<T> &other) const {
+    if (this->GetLength() != other.GetLength()) return false;
+
+    ListSequenceIterator this_current = this->begin();
+    ListSequenceIterator other_current = other.begin();
+
+    while (this_current != this->end()) {
+        if (*this_current != *other_current) return false;
+        this_current++;
+        other_current++;
+    }
+
+    return true;
+}
+
+template <class T>
+bool ListSequence<T>::operator!=(const ListSequence<T> &other) const {
+    return !(*this == other);
+}
+
+template <class T>
+T &ListSequence<T>::operator[](int index) {
+    ListSequenceIterator current = this->begin();
+    current += index;
+    return *current;
+}
+
+template <class T>
+const T &ListSequence<T>::operator[](int index) const {
+    ListSequenceIterator current = this->begin();
+    current += index;
+    return *current;
+}
+
+template <class T>
+ListSequence<T> &ListSequence<T>::operator+(const ListSequence<T> &other) const {
+    ListSequence<T> *result = new ListSequence<T>(*this);
+    result->Concat(&other);
+    return *result;
+}
+
+template <class T>
+ListSequence<T> &ListSequence<T>::operator+=(const T &value) {
+    this->Append(value);
+    return *this;
+}
+
+template <class T>
+ListSequence<T> &ListSequence<T>::operator+=(const ListSequence<T> &other) {
+    this->Concat(&other);
+    return *this;
+}
+
+template <class T>
+std::ostream &operator<<(std::ostream &os, const ListSequence<T> &seq) {
+    os << '[';
+    for (int i = 0; i < seq.GetLength(); i++) {
+        os << seq.Get(i);
+        if (i != seq.GetLength() - 1) os << ", ";
+    }
+    os << ']';
+    return os;
 }
 
 // ---------- Mutable and Immutable Versions ----------
