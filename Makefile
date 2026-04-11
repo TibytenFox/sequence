@@ -1,11 +1,29 @@
-DECLARATIONS = ./sequence/sequence.h ./sequence/array_sequence.h ./sequence/list_sequence.h 
+TARGETS = test main
 
-app: main.cpp $(DECLARATIONS) dynamic_array.h linked_list.h
-	g++ main.cpp -o app
+# All header files (including template implementations)
+HEADERS = dynamic_array.hpp dynamic_array.tpp \
+          linked_list.hpp linked_list.tpp \
+          sequence/iterator.hpp \
+          sequence/sequence.hpp \
+          sequence/array_sequence.hpp sequence/array_sequence.tpp \
+          sequence/list_sequence.hpp sequence/list_sequence.tpp \
+          tasks.hpp
 
-clear:
-	rm -f *.o app
+all: $(TARGETS)
 
-run: app
-	./app
+test: test.cpp $(HEADERS)
+	g++ -I. -o $@ $<
 
+main: main.cpp $(HEADEERS)
+	g++ -I. -o $@ $<
+
+test_run: test
+	./test
+
+clean:
+	rm -f *.o $(TARGETS)
+
+run: main
+	./main
+
+.PHONY: all clean test_run

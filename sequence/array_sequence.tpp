@@ -1,6 +1,7 @@
-#include "array_sequence.h"
+#include "array_sequence.hpp"
 
 // ---------- Constructors and Destructor ----------
+
 template <class T>
 ArraySequence<T>::ArraySequence() : items() {}
 
@@ -14,6 +15,7 @@ template <class T>
 ArraySequence<T>::~ArraySequence() {}
 
 // ---------- Sequence Interface Implementation ----------
+
 template <class T>
 T ArraySequence<T>::GetFirst() const { return items.Get(0); }
 
@@ -26,6 +28,7 @@ T ArraySequence<T>::Get(int index) const { return items.Get(index); }
 template <class T>
 int ArraySequence<T>::GetLength() const { return items.GetSize(); }
 
+// Caller is responsible for deleting the returned pointer
 template <class T>
 ArraySequence<T> *ArraySequence<T>::GetSubSequence(int start_index, int end_index) const {
     if (start_index < 0 || end_index >= items.GetSize() || start_index > end_index) {
@@ -42,6 +45,7 @@ ArraySequence<T> *ArraySequence<T>::GetSubSequence(int start_index, int end_inde
     return sub_sequence;
 }
 
+// Using instance 
 template <class T>
 ArraySequence<T> *ArraySequence<T>::Append(T item) {
     return Instance()->AppendInternal(item);
@@ -57,12 +61,26 @@ ArraySequence<T> *ArraySequence<T>::InsertAt(T item, int index) {
     return Instance()->InsertAtInternal(item, index);
 }
 
+// Returns new heap-allocated sequence
 template <class T>
-ArraySequence<T> *ArraySequence<T>::Concat(Sequence<T> *list) {
-    return Instance()->ConcatInternal(list);
+ArraySequence<T> *ArraySequence<T>::Concat(const Sequence<T> *list) const {
+    int total_size = GetLength() + list->GetLength();
+
+    // Create a temporary C-array to hold the concatenated items
+    T *concat_items = new T[total_size];
+    for (int i = 0; i < GetLength(); i++) {
+        concat_items[i] = Get(i);
+    }
+    for (int i = 0; i < list->GetLength(); i++) {
+        concat_items[GetLength() + i] = list->Get(i);
+    }
+    ArraySequence<T> *concat_sequence = new ArraySequence<T>(concat_items, total_size);
+    delete[] concat_items;
+    return concat_sequence;
 }
 
-// ---------- Internal Methods ----------
+// ---------- Internal Methods (modify in place) ----------
+
 template <class T>
 ArraySequence<T> *ArraySequence<T>::AppendInternal(T item) {
     items.Resize(items.GetSize() + 1);
@@ -91,157 +109,119 @@ ArraySequence<T> *ArraySequence<T>::InsertAtInternal(T item, int index) {
     return this;
 }
 
-template <class T>
-ArraySequence<T> *ArraySequence<T>::ConcatInternal(Sequence<T> *list) {
-    int total_size = GetLength() + list->GetLength();
+// ---------- Map, Where, Reduce ----------
 
-    // Create a temporary C-array to hold the concatenated items
-    T *concat_items = new T[total_size];
+template <class T>
+template <class T2>
+ArraySequence<T2> *ArraySequence<T>::Map(T2 (*func)(T)) const {
+    ArraySequence<T2> *mapped_sequence = new ArraySequence<T2>();
     for (int i = 0; i < GetLength(); i++) {
-        concat_items[i] = Get(i);
+        mapped_sequence->AppendInternal(func(Get(i)));
     }
-    for (int i = 0; i < list->GetLength(); i++) {
-        concat_items[GetLength() + i] = list->Get(i);
-    }
-    ArraySequence<T> *concat_sequence = new ArraySequence<T>(concat_items, total_size);
-    delete[] concat_items;
-    return concat_sequence;
+    return mapped_sequence;
 }
 
 template <class T>
-ArraySequence<T> *ArraySequence<T>::MapInternal(T (*func)(T)) {
-    ArraySequence<T> *mapped_sequence = new ArraySequence<T>();
-    for (int i = 0; i < GetLength(); i++) {
-        mapped_sequence->Append(func(Get(i)));
-    }
-    *this = *mapped_sequence;
-    delete mapped_sequence;
-    return this;
-}
-
-template <class T>
-ArraySequence<T> *ArraySequence<T>::WhereInternal(bool (*predicate)(T)) {
+ArraySequence<T> *ArraySequence<T>::Where(bool (*predicate)(T)) const {
     ArraySequence<T> *filtered_sequence = new ArraySequence<T>();
     for (int i = 0; i < GetLength(); i++) {
         if (predicate(Get(i))) filtered_sequence->Append(Get(i));
     }
-    *this = *filtered_sequence;
-    delete filtered_sequence;
-    return this;
+    return filtered_sequence;
 }
 
 template <class T>
-T ArraySequence<T>::ReduceInternal(T (*func)(T, T), T initial) {
-    T result = initial;
+template <class T2>
+T2 ArraySequence<T>::Reduce(T2 (*func)(T2, T), T2 initial) const {
+    T2 result = initial;
     for (int i = 0; i < GetLength(); i++) {
         result = func(result, Get(i));
     }
     return result;
 }
 
-// ---------- Map, Where, Reduce ----------
-template <class T>
-ArraySequence<T> *ArraySequence<T>::Map(T (*func)(T)) {
-    return Instance()->MapInternal(func);
-}
-
-template <class T>
-ArraySequence<T> *ArraySequence<T>::Where(bool (*predicate)(T)) {
-    return Instance()->WhereInternal(predicate);
-}
-
-template <class T>
-T ArraySequence<T>::Reduce(T (*func)(T, T), T initial) {
-    return Instance()->ReduceInternal(func, initial);
-}
-
 // ---------- Iterators ----------
+
 template <class T>
 ArraySequence<T>::ArraySequenceIterator::ArraySequenceIterator(PointerType ptr) : current(ptr) {}
 
 template <class T>
-typename ArraySequence<T>::ArraySequenceIterator &ArraySequence<T>::ArraySequenceIterator::operator++() {
-    current++;
-    return *this;
+void ArraySequence<T>::ArraySequenceIterator::Increment() {
+    ++current;
 }
 
 template <class T>
-typename ArraySequence<T>::ArraySequenceIterator &ArraySequence<T>::ArraySequenceIterator::operator+=(int n) {
-    current += n;
-    return *this;
+void ArraySequence<T>::ArraySequenceIterator::Decrement() {
+    --current;
 }
 
 template <class T>
-typename ArraySequence<T>::ArraySequenceIterator ArraySequence<T>::ArraySequenceIterator::operator++(int) {
-    ArraySequenceIterator tmp = *this;
-    current++;
-    return tmp;
-}
-
-template <class T>
-typename ArraySequence<T>::ArraySequenceIterator &ArraySequence<T>::ArraySequenceIterator::operator--() {
-    current--;
-    return *this;
-}
-
-template <class T>
-typename ArraySequence<T>::ArraySequenceIterator &ArraySequence<T>::ArraySequenceIterator::operator-=(int n) {
-    current -= n;
-    return *this;
-} 
-
-template <class T>
-typename ArraySequence<T>::ArraySequenceIterator ArraySequence<T>::ArraySequenceIterator::operator--(int) {
-    ArraySequenceIterator tmp = *this;
-    current--;
-    return tmp;
-}
-
-template <class T>
-typename ArraySequence<T>::ArraySequenceIterator::PointerType ArraySequence<T>::ArraySequenceIterator::operator->() {
-    return current;
-} 
-
-template <class T>
-typename ArraySequence<T>::ArraySequenceIterator::ReferenceType ArraySequence<T>::ArraySequenceIterator::operator*() {
+T &ArraySequence<T>::ArraySequenceIterator::Dereference() const {
     return *current;
-} 
-
-template <class T>
-bool ArraySequence<T>::ArraySequenceIterator::operator==(const ArraySequenceIterator &other) const {
-    return current == other.current;
 }
 
 template <class T>
-bool ArraySequence<T>::ArraySequenceIterator::operator!=(const ArraySequenceIterator &other) const {
-    return current != other.current;
+bool ArraySequence<T>::ArraySequenceIterator::Equals(const Iterator<T> &other) const {
+    const ArraySequenceIterator *other_dereferenced = dynamic_cast<const ArraySequenceIterator*>(&other);
+    return other_dereferenced && (current == other_dereferenced->current);
 }
 
 template <class T>
 typename ArraySequence<T>::ArraySequenceIterator ArraySequence<T>::begin() {
-    return ArraySequenceIterator(this->items);
+    if (GetLength() == 0) return ArraySequenceIterator(nullptr);
+    return ArraySequenceIterator(&items.Get(0));
 }
 
 template <class T>
 typename ArraySequence<T>::ArraySequenceIterator ArraySequence<T>::end() {
-    return ArraySequenceIterator(this->items + this->GetLength());
+    if (GetLength() == 0) return ArraySequenceIterator(nullptr);
+    return ArraySequenceIterator(&items.Get(GetLength() - 1) + 1);
+}
+
+// ---------- Const Iterators ----------
+
+template <class T>
+ArraySequence<T>::ConstArraySequenceIterator::ConstArraySequenceIterator(PointerType ptr) : current(ptr) {}
+
+template <class T>
+void ArraySequence<T>::ConstArraySequenceIterator::Increment() { 
+    ++current; 
+}
+
+template <class T>
+void ArraySequence<T>::ConstArraySequenceIterator::Decrement() { 
+    --current; 
+}
+
+template <class T>
+const T &ArraySequence<T>::ConstArraySequenceIterator::Dereference() const { 
+    return *current; 
+}
+
+template <class T>
+bool ArraySequence<T>::ConstArraySequenceIterator::Equals(const ConstIterator<T>& other) const {
+    const ConstArraySequenceIterator* otherDerived = dynamic_cast<const ConstArraySequenceIterator*>(&other);
+    return otherDerived && current == otherDerived->current;
+}
+
+template <class T>
+typename ArraySequence<T>::ConstArraySequenceIterator ArraySequence<T>::begin() const {
+    if (GetLength() == 0) return ConstArraySequenceIterator(nullptr);
+    return ConstArraySequenceIterator(&items.Get(0));
+}
+
+template <class T>
+typename ArraySequence<T>::ConstArraySequenceIterator ArraySequence<T>::end() const {
+    if (GetLength() == 0) return ConstArraySequenceIterator(nullptr);
+    return ConstArraySequenceIterator(&items.Get(GetLength() - 1) + 1);
 }
 
 // ---------- Operators ----------
+
 template <class T>
 ArraySequence<T> &ArraySequence<T>::operator=(const ArraySequence<T> &other) {
     if (this != &other) {
         items = other.items;
-    }
-    return *this;
-}
-
-template <class T>
-ArraySequence<T> &ArraySequence<T>::operator=(std::initializer_list<T> init_list) {
-    items.Resize(init_list.size());
-    int index = 0;
-    for (const T &item : init_list) {
-        items.Set(index++, item);
     }
     return *this;
 }
@@ -262,7 +242,7 @@ bool ArraySequence<T>::operator!=(const ArraySequence<T> &other) const {
 
 template <class T>
 T &ArraySequence<T>::operator[](int index) {
-    return items.Get(index);
+    return items.Get(index);    
 }
 
 template <class T>
@@ -271,8 +251,16 @@ const T &ArraySequence<T>::operator[](int index) const {
 }
 
 template <class T>
-ArraySequence<T> &ArraySequence<T>::operator+(const ArraySequence<T> &other) const {
-    return *Concat(other);
+ArraySequence<T> ArraySequence<T>::operator+(const ArraySequence<T> &other) const {
+    int total_size = GetLength() + other.GetLength();
+    T *temp = new T[total_size];
+    for (int i = 0; i < GetLength(); ++i)
+        temp[i] = Get(i);
+    for (int i = 0; i < other.GetLength(); ++i)
+        temp[GetLength() + i] = other.Get(i);
+    ArraySequence<T> result(temp, total_size);
+    delete[] temp;
+    return result;
 }
 
 template <class T>
@@ -282,7 +270,8 @@ ArraySequence<T> &ArraySequence<T>::operator+=(const T& value) {
 
 template <class T>
 ArraySequence<T> &ArraySequence<T>::operator+=(const ArraySequence<T> &other) {
-    return *ConcatInternal(other);
+    *this = *Concat(&other);
+    return *this;
 }
 
 template <class T>
@@ -297,6 +286,7 @@ std::ostream &operator<<(std::ostream &os, const ArraySequence<T> &seq) {
 }
 
 // ---------- Mutable and Immutable Versions ----------
+
 template <class T>
 MutableArraySequence<T>::MutableArraySequence() : ArraySequence<T>() {}
 
