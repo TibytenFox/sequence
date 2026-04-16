@@ -1,21 +1,19 @@
-#include <algorithm>
-#include <stdexcept>
-#include "dynamic_array.hpp"
+#include "DynamicArray.hpp"
 
 // ---------- Constructors and Destructor ----------
 
 template <class T>
-DynamicArray<T>::DynamicArray() : size(0), data(new T[0]()) {}
+DynamicArray<T>::DynamicArray() : data(new T[0]()), size(0) {}
 
 template <class T>
 DynamicArray<T>::DynamicArray(int s) : size(s) {
-    if (s < 0) throw std::invalid_argument("Size must be positive");
+    if (s < 0) throw IndexOutOfRange("DynamicArray(): Size must be positive");
     data = new T[size](); // Value-initialization (zero for primitives)
 }
 
 template <class T>
 DynamicArray<T>::DynamicArray(T *items, int count) : DynamicArray(count) {
-    if (count < 0) throw std::invalid_argument("Count must be non-negative");
+    if (count < 0) throw IndexOutOfRange("DynamicArray(): Count must be non-negative");
     std::copy(items, items + count, data);
 }
 
@@ -30,14 +28,8 @@ DynamicArray<T>::~DynamicArray() { delete[] data; }
 // ---------- Getters and Setters ----------
 
 template <class T>
-T &DynamicArray<T>::Get(int index) {
-    if (index < 0 || index >= size) throw std::out_of_range("Index out of range");
-    return data[index];
-}
-
-template <class T>
 const T &DynamicArray<T>::Get(int index) const {
-    if (index < 0 || index >= size) throw std::out_of_range("Index out of range");
+    if (index < 0 || index >= size) throw IndexOutOfRange("Get(): Index out of range");
     return data[index];
 }
 
@@ -46,7 +38,7 @@ int DynamicArray<T>::GetSize() const { return size; }
 
 template <class T>
 void DynamicArray<T>::Set(int index, T value) {
-    if (index < 0 || index >= size) throw std::out_of_range("Index out of range");
+    if (index < 0 || index >= size) throw IndexOutOfRange("Set(): Index out of range");
     data[index] = value;
 }
 
@@ -56,7 +48,7 @@ void DynamicArray<T>::Set(int index, T value) {
 */
 template <class T>
 void DynamicArray<T>::Resize(int new_size) {
-    if (new_size < 0) throw std::invalid_argument("Size must be positive");
+    if (new_size < 0) throw IndexOutOfRange("Resize(): Size must be positive");
     T *new_data = new T[new_size];
     // Copy min(old size, new size) elements
     for (int i = 0; i < ((size < new_size) ? size : new_size); i++) {
@@ -80,4 +72,12 @@ DynamicArray<T> &DynamicArray<T>::operator=(const DynamicArray<T> &other) {
         std::copy(other.data, other.data + size, data);
     }
     return *this;
+}
+
+template <class T>
+T &DynamicArray<T>::operator[](int index) {
+    if (index < 0 || index >= this->GetSize()) {
+        throw IndexOutOfRange("Operator[]: Index out of range");
+    }
+    return data[index];
 }

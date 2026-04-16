@@ -1,21 +1,24 @@
-#pragma once
+#ifndef IENUMERATOR_HPP
+#define IENUMERATOR_HPP
+
+// TODO: переписать к виду MoveNext()
 
 template <class T>
-class Iterator {
+class IEnumerator {
 public:
-    virtual ~Iterator() = default;
+    virtual ~IEnumerator() = default;
 
     virtual void Increment() = 0; // ++it
     virtual void Decrement() = 0; // --it;
     virtual T &Dereference() const = 0; // *it
-    virtual bool Equals(const Iterator<T> &other) const = 0; // it == other
+    virtual bool Equals(const IEnumerator<T> &other) const = 0; // it == other
 
     // Operator overloads (call virtual methods)
-    Iterator<T> &operator++() {
+    IEnumerator<T> &operator++() {
         Increment();
         return *this;
     }
-    Iterator<T> &operator--() {
+    IEnumerator<T> &operator--() {
         Decrement();
         return *this;
     }
@@ -25,30 +28,30 @@ public:
     T *operator->() const {
         return &Dereference();
     }
-    bool operator==(const Iterator<T> &other) const {
+    bool operator==(const IEnumerator<T> &other) const {
         return Equals(other);
     }
-    bool operator!=(const Iterator<T> &other) const {
+    bool operator!=(const IEnumerator<T> &other) const {
         return !Equals(other);
     }
 };
 
 template <class T>
-class ConstIterator {
+class IConstEnumerator {
 public:
-    virtual ~ConstIterator() = default;
+    virtual ~IConstEnumerator() = default;
 
     virtual void Increment() = 0; // ++it
     virtual void Decrement() = 0; // --it;
     virtual const T &Dereference() const = 0; // *it
-    virtual bool Equals(const ConstIterator<T> &other) const = 0; // it == other
+    virtual bool Equals(const IConstEnumerator<T> &other) const = 0; // it == other
 
     // Operator overloads (call virtual methods)
-    ConstIterator<T> &operator++() {
+    IConstEnumerator<T> &operator++() {
         Increment();
         return *this;
     }
-    ConstIterator<T> &operator--() {
+    IConstEnumerator<T> &operator--() {
         Decrement();
         return *this;
     }
@@ -58,10 +61,12 @@ public:
     const T *operator->() const {
         return &Dereference();
     }
-    bool operator==(const ConstIterator<T> &other) const {
+    bool operator==(const IConstEnumerator<T> &other) const {
         return Equals(other);
     }
-    bool operator!=(const ConstIterator<T> &other) const {
+    bool operator!=(const IConstEnumerator<T> &other) const {
         return !Equals(other);
     }
 };
+
+#endif // IENUMERATOR_HPP

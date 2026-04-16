@@ -1,29 +1,59 @@
-TARGETS = test main
+CXX = g++
+CXXFLAGS = -I. -Wall
 
-# All header files (including template implementations)
-HEADERS = dynamic_array.hpp dynamic_array.tpp \
-          linked_list.hpp linked_list.tpp \
-          sequence/iterator.hpp \
-          sequence/sequence.hpp \
-          sequence/array_sequence.hpp sequence/array_sequence.tpp \
-          sequence/list_sequence.hpp sequence/list_sequence.tpp \
-          tasks.hpp
+BUILD_DIR = build
+
+# Исходные файлы
+TEST_SRC = test.cpp
+MAIN_SRC = main.cpp
+
+# Объектные файлы
+TEST_OBJ = $(BUILD_DIR)/test.o
+MAIN_OBJ = $(BUILD_DIR)/main.o
+
+# Исполняемые файлы
+TEST_TARGET = $(BUILD_DIR)/test
+MAIN_TARGET = $(BUILD_DIR)/main
+
+TARGETS = $(TEST_TARGET) $(MAIN_TARGET)
+
+HEADERS = \
+	sequence/ArraySequence.hpp sequence/ArraySequence.tpp \
+	sequence/DynamicArray.hpp sequence/DynamicArray.tpp \
+	sequence/Exceptions.hpp \
+	sequence/ICollection.hpp sequence/IEnumerable.hpp sequence/IEnumerator.hpp \
+	sequence/LinkedList.hpp sequence/LinkedList.tpp \
+	sequence/ListSequence.hpp sequence/ListSequence.tpp \
+	sequence/Sequence.hpp sequence/Sequence.tpp sequence/SequenceOutput.hpp
 
 all: $(TARGETS)
 
-test: test.cpp $(HEADERS)
-	g++ -I. -o $@ $<
+# Создание каталога build
+$(BUILD_DIR):
+	mkdir -p $@
 
-main: main.cpp $(HEADEERS)
-	g++ -I. -o $@ $<
+# Компиляция .cpp → .o (build должен существовать, но его время модификации не влияет на пересборку)
+$(BUILD_DIR)/%.o: %.cpp $(HEADERS) | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-test_run: test
-	./test
+# Линковка исполняемого файла test
+$(TEST_TARGET): $(TEST_OBJ)
+	$(CXX) $^ -o $@
 
+# Линковка исполняемого файла main
+$(MAIN_TARGET): $(MAIN_OBJ)
+	$(CXX) $^ -o $@
+
+# Запуск тестов
+test_run: $(TEST_TARGET)
+	./$(TEST_TARGET)
+
+# Запуск основной программы
+run: $(MAIN_TARGET)
+	./$(MAIN_TARGET)
+
+# Очистка
 clean:
-	rm -f *.o $(TARGETS)
+	rm -fr $(BUILD_DIR)
 
-run: main
-	./main
-
-.PHONY: all clean test_run
+.PHONY: all clean test_run run

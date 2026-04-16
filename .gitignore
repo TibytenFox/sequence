@@ -36,8 +36,7 @@
 *.exe
 *.out
 *.app
-app
-test
+build
 
 # debug information files
 *.dwo

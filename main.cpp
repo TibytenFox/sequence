@@ -1,8 +1,10 @@
 #include <iostream>
 #include <string>
 #include <limits>
-#include "sequence/array_sequence.hpp"
-#include "sequence/list_sequence.hpp"
+#include "sequence/MutableArraySequence.hpp"
+#include "sequence/MutableListSequence.hpp"
+#include "sequence/ImmutableArraySequence.hpp"
+#include "sequence/ImmutableListSequence.hpp"
 
 // Helper: print a sequence
 template <class Seq>
@@ -115,7 +117,7 @@ void arraySequenceMenu() {
                 int start = readInt("Start index: ");
                 int end = readInt("End index: ");
                 try {
-                    ArraySequence<int>* sub = seq->GetSubSequence(start, end);
+                    Sequence<int> *sub = seq->GetSubsequence(start, end);
                     printSequence(*sub, "Subsequence");
                     delete sub;
                 } catch (const std::exception &e) {
@@ -127,7 +129,7 @@ void arraySequenceMenu() {
                 if (!seq) { std::cout << "No sequence. Create one first.\n"; break; }
                 std::cout << "Create another sequence to concatenate:\n";
                 MutableArraySequence<int> *other = createSequenceFromUser<MutableArraySequence<int>>();
-                ArraySequence<int> *concat = seq->Concat(other);
+                Sequence<int> *concat = seq->Concat(other);
                 printSequence(*concat, "Concatenated sequence");
                 delete concat;
                 delete other;
@@ -136,7 +138,7 @@ void arraySequenceMenu() {
             case 9: {
                 if (!seq) {std::cout << "No sequence. Create one first.\n"; break; }
                 // Where
-                ArraySequence<int> *filtered = seq->Where(greaterThanFive);
+                Sequence<int> *filtered = seq->Where(greaterThanFive);
                 printSequence(*filtered, "Filtered (elements >5)");
                 delete filtered;
                 // Reduce (sum)
@@ -220,7 +222,7 @@ void listSequenceMenu() {
                 int start = readInt("Start index: ");
                 int end = readInt("End index: ");
                 try {
-                    ListSequence<int>* sub = seq->GetSubSequence(start, end);
+                    Sequence<int> *sub = seq->GetSubsequence(start, end);
                     printSequence(*sub, "Subsequence");
                     delete sub;
                 } catch (const std::exception &e) {
@@ -232,7 +234,7 @@ void listSequenceMenu() {
                 if (!seq) { std::cout << "No sequence. Create one first.\n"; break; }
                 std::cout << "Create another sequence to concatenate:\n";
                 MutableListSequence<int> *other = createSequenceFromUser<MutableListSequence<int>>();
-                ListSequence<int> *concat = seq->Concat(other);
+                Sequence<int> *concat = seq->Concat(other);
                 printSequence(*concat, "Concatenated sequence");
                 delete concat;
                 delete other;
@@ -240,7 +242,7 @@ void listSequenceMenu() {
             }
             case 9: {
                 if (!seq) { std::cout << "No sequence. Create one first.\n"; break; }
-                ListSequence<int> *filtered = seq->Where(greaterThanFive);
+                Sequence<int> *filtered = seq->Where(greaterThanFive);
                 printSequence(*filtered, "Filtered (elements >5)");
                 delete filtered;
                 int sum = seq->Reduce(sumReducer, 0);

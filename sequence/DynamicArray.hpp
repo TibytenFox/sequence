@@ -1,4 +1,7 @@
-#pragma once
+#ifndef DYNAMIC_ARRAY_HPP
+#define DYNAMIC_ARRAY_HPP
+
+#include "Exceptions.hpp"
 
 template <class T>
 class DynamicArray {
@@ -11,17 +14,18 @@ public:
     ~DynamicArray();                             // Destructor
 
     // ---------- Accessors ----------
-    T &Get(int index);                     // Get element at index
-    const T &Get(int index) const;
+    const T &Get(int index) const;               // Get element at index
     int GetSize() const;                         // Return current size
     void Set(int index, T value);                // Assign value at index
     void Resize(int new_size);                   // Change size (preserve existing data)
 
     // ---------- Operators ----------
     DynamicArray<T> &operator=(const DynamicArray<T> &other);
+    T &operator[](int index);
 private:
     T *data;     // Raw pointer to heap-allocated array
     int size;    // Number of elements
 };
 
-#include "dynamic_array.tpp"
+#include "DynamicArray.tpp"
+#endif // DYNAMIC_ARRAY_HPP

@@ -1,5 +1,4 @@
-#include <stdexcept>
-#include "linked_list.hpp"
+#include "LinkedList.hpp"
 
 // --------- Constructors and Destructor ----------
 
@@ -8,7 +7,7 @@ LinkedList<T>::LinkedList() : size(0), head(nullptr), tail(nullptr) {}
 
 template <class T>
 LinkedList<T>::LinkedList(T *items, int count) : LinkedList() {
-    if (count < 0) throw std::invalid_argument("Count must be non-negative");
+    if (count < 0) throw IndexOutOfRange("LinkedList(): Count must be non-negative");
     for (int i = 0; i < count; i++) {
         Append(items[i]);
     }
@@ -36,20 +35,20 @@ LinkedList<T>::~LinkedList() {
 // ---------- Getters ----------
 
 template <class T>
-T LinkedList<T>::GetFirst() const {
-    if (head == nullptr) throw std::out_of_range("List is empty");
+const T &LinkedList<T>::GetFirst() const {
+    if (head == nullptr) throw EmptyCollectionError("GetFirst(): List is empty");
     return head->value;
 }
 
 template <class T>
-T LinkedList<T>::GetLast() const {
-    if (tail == nullptr) throw std::out_of_range("List is empty");
+const T &LinkedList<T>::GetLast() const {
+    if (tail == nullptr) throw EmptyCollectionError("GetLast(): List is empty");
     return tail->value;
 }
 
 template <class T>
-T LinkedList<T>::Get(int index) const {
-    if (index < 0 || index >= size) throw std::out_of_range("Index out of range");
+const T &LinkedList<T>::Get(int index) const {
+    if (index < 0 || index >= size) throw IndexOutOfRange("Get(): Index out of range");
     Node *current = head;
     for (int i = 0; i < index; i++) current = current->next;
     return current->value;
@@ -58,8 +57,8 @@ T LinkedList<T>::Get(int index) const {
 // Caller is responsible for deleting the returned list
 template <class T>
 LinkedList<T> *LinkedList<T>::GetSubList(int start_index, int end_index) const {
-    if (start_index < 0 || end_index >= size || start_index > end_index) throw std::out_of_range("Invalid index range");
-    if (head == nullptr) throw std::out_of_range("List is empty");
+    if (start_index < 0 || end_index >= size || start_index > end_index) throw IndexOutOfRange("GetSubList(): index range");
+    if (head == nullptr) throw EmptyCollectionError("GetSubList(): List is empty");
 
     // Create a new linked list for the sublist
     LinkedList<T> *sublist = new LinkedList<T>();
@@ -106,7 +105,7 @@ void LinkedList<T>::Prepend(T item) {
 
 template <class T>
 void LinkedList<T>::InsertAt(T item, int index) {
-    if (index < 0 || index > size) throw std::out_of_range("Index out of range");
+    if (index < 0 || index > size) throw IndexOutOfRange("InsertAt(): Index out of range");
     if (index == 0) { Prepend(item); return; }
     if (index == size) { Append(item); return; }
 

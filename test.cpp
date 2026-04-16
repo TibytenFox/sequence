@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdexcept>
-#include "sequence/array_sequence.hpp"
-#include "sequence/list_sequence.hpp"
+#include "sequence/MutableArraySequence.hpp"
+#include "sequence/MutableListSequence.hpp"
 
 #define TEST(name) void name(); \
     struct Register_##name { Register_##name() { register_test(name); std::cout << #name << '\n'; } } reg_##name; \
@@ -104,18 +104,18 @@ TEST(ArraySequence_InsertAt) {
     ASSERT_THROWS(seq.InsertAt(99, 10), std::out_of_range);
 }
 
-TEST(ArraySequence_GetSubSequence) {
+TEST(ArraySequence_GetSubsequence) {
     int arr[] = {10, 20, 30, 40, 50};
     MutableArraySequence<int> seq(arr, 5);
-    ArraySequence<int> *sub = seq.GetSubSequence(1, 3);
+    Sequence<int> *sub = seq.GetSubsequence(1, 3);
     ASSERT_EQ(sub->GetLength(), 3);
     ASSERT_EQ(sub->Get(0), 20);
     ASSERT_EQ(sub->Get(2), 40);
     delete sub;
 
-    ASSERT_THROWS(seq.GetSubSequence(2, 1), std::out_of_range);
-    ASSERT_THROWS(seq.GetSubSequence(-1, 2), std::out_of_range);
-    ASSERT_THROWS(seq.GetSubSequence(2, 10), std::out_of_range);
+    ASSERT_THROWS(seq.GetSubsequence(2, 1), std::out_of_range);
+    ASSERT_THROWS(seq.GetSubsequence(-1, 2), std::out_of_range);
+    ASSERT_THROWS(seq.GetSubsequence(2, 10), std::out_of_range);
 }
 
 TEST(ArraySequence_Concat) {
@@ -123,7 +123,7 @@ TEST(ArraySequence_Concat) {
     int b[] = {3, 4};
     MutableArraySequence<int> seqA(a, 2);
     MutableArraySequence<int> seqB(b, 2);
-    ArraySequence<int> *concat = seqA.Concat(&seqB);
+    Sequence<int> *concat = seqA.Concat(&seqB);
     ASSERT_EQ(concat->GetLength(), 4);
     ASSERT_EQ(concat->Get(0), 1);
     ASSERT_EQ(concat->Get(2), 3);
@@ -134,7 +134,7 @@ TEST(ArraySequence_Concat) {
 TEST(ArraySequence_Map) {
     MutableArraySequence<int> seq;
     seq.Append(1); seq.Append(2); seq.Append(3);
-    ArraySequence<int> *squares = seq.Map<int>([](int x) { return x * x; });
+    Sequence<int> *squares = seq.Map<int>([](int x) { return x * x; });
     ASSERT_EQ(squares->GetLength(), 3);
     ASSERT_EQ(squares->Get(0), 1);
     ASSERT_EQ(squares->Get(1), 4);
@@ -145,7 +145,7 @@ TEST(ArraySequence_Map) {
 TEST(ArraySequence_Where) {
     MutableArraySequence<int> seq;
     seq.Append(1); seq.Append(2); seq.Append(3); seq.Append(4);
-    ArraySequence<int> *evens = seq.Where([](int x) { return x % 2 == 0; });
+    Sequence<int> *evens = seq.Where([](int x) { return x % 2 == 0; });
     ASSERT_EQ(evens->GetLength(), 2);
     ASSERT_EQ(evens->Get(0), 2);
     ASSERT_EQ(evens->Get(1), 4);
@@ -189,15 +189,15 @@ TEST(ArraySequence_Iterator) {
     MutableArraySequence<int> seq;
     seq.Append(1); seq.Append(2); seq.Append(3);
     int sum = 0;
-    for (int x : seq) sum += x;
+    for (int i = 0; i < seq.GetLength(); i++) sum += seq[i];
     ASSERT_EQ(sum, 6);
 
     auto it = seq.begin();
-    ASSERT_EQ(*it, 1);
-    ++it;
-    ASSERT_EQ(*it, 2);
-    --it;
-    ASSERT_EQ(*it, 1);
+    ASSERT_EQ(**it, 1);
+    ++(*it);
+    ASSERT_EQ(**it, 2);
+    --(*it);
+    ASSERT_EQ(**it, 1);
 }
 
 TEST(ArraySequence_OperatorPlus) {
@@ -205,7 +205,7 @@ TEST(ArraySequence_OperatorPlus) {
     int b[] = {3, 4};
     MutableArraySequence<int> seqA(a, 2);
     MutableArraySequence<int> seqB(b, 2);
-    ArraySequence<int> result = seqA + seqB;
+    MutableArraySequence<int> result = seqA + seqB;
     ASSERT_EQ(result.GetLength(), 4);
     ASSERT_EQ(result.Get(0), 1);
     ASSERT_EQ(result.Get(2), 3);
@@ -283,10 +283,10 @@ TEST(ListSequence_InsertAt) {
     ASSERT_THROWS(seq.InsertAt(99, 10), std::out_of_range);
 }
 
-TEST(ListSequence_GetSubSequence) {
+TEST(ListSequence_GetSubsequence) {
     int arr[] = {10, 20, 30, 40, 50};
     MutableListSequence<int> seq(arr, 5);
-    ListSequence<int> *sub = seq.GetSubSequence(1, 3);
+    Sequence<int> *sub = seq.GetSubsequence(1, 3);
     ASSERT_EQ(sub->GetLength(), 3);
     ASSERT_EQ(sub->Get(0), 20);
     ASSERT_EQ(sub->Get(2), 40);
@@ -298,7 +298,7 @@ TEST(ListSequence_Concat) {
     int b[] = {3, 4};
     MutableListSequence<int> seqA(a, 2);
     MutableListSequence<int> seqB(b, 2);
-    ListSequence<int> *concat = seqA.Concat(&seqB);
+    Sequence<int> *concat = seqA.Concat(&seqB);
     ASSERT_EQ(concat->GetLength(), 4);
     ASSERT_EQ(concat->Get(0), 1);
     ASSERT_EQ(concat->Get(2), 3);
@@ -308,7 +308,7 @@ TEST(ListSequence_Concat) {
 TEST(ListSequence_Map) {
     MutableListSequence<int> seq;
     seq.Append(1); seq.Append(2); seq.Append(3);
-    ListSequence<int> *squares = seq.Map<int>([](int x) { return x * x; });
+    Sequence<int> *squares = seq.Map<int>([](int x) { return x * x; });
     ASSERT_EQ(squares->GetLength(), 3);
     ASSERT_EQ(squares->Get(0), 1);
     ASSERT_EQ(squares->Get(1), 4);
@@ -319,7 +319,7 @@ TEST(ListSequence_Map) {
 TEST(ListSequence_Where) {
     MutableListSequence<int> seq;
     seq.Append(1); seq.Append(2); seq.Append(3); seq.Append(4);
-    ListSequence<int> *evens = seq.Where([](int x) { return x % 2 == 0; });
+    Sequence<int> *evens = seq.Where([](int x) { return x % 2 == 0; });
     ASSERT_EQ(evens->GetLength(), 2);
     ASSERT_EQ(evens->Get(0), 2);
     ASSERT_EQ(evens->Get(1), 4);
@@ -360,15 +360,19 @@ TEST(ListSequence_Iterator) {
     MutableListSequence<int> seq;
     seq.Append(1); seq.Append(2); seq.Append(3);
     int sum = 0;
-    for (int x : seq) sum += x;
+    IEnumerator<int> *en = seq.begin();
+    IEnumerator<int> *end = seq.end();
+    for (; (*en) != (*end); ++(*en)) sum += **en;
+    delete en;
+    delete end;
     ASSERT_EQ(sum, 6);
 
     auto it = seq.begin();
-    ASSERT_EQ(*it, 1);
-    ++it;
-    ASSERT_EQ(*it, 2);
-    --it;
-    ASSERT_EQ(*it, 1);
+    ASSERT_EQ(**it, 1);
+    ++(*it);
+    ASSERT_EQ(**it, 2);
+    --(*it);
+    ASSERT_EQ(**it, 1);
 }
 
 TEST(ListSequence_OperatorPlus) {
@@ -376,7 +380,7 @@ TEST(ListSequence_OperatorPlus) {
     int b[] = {3, 4};
     MutableListSequence<int> seqA(a, 2);
     MutableListSequence<int> seqB(b, 2);
-    ListSequence<int> result = seqA + seqB;
+    MutableListSequence<int> result = seqA + seqB;
     ASSERT_EQ(result.GetLength(), 4);
     ASSERT_EQ(result.Get(0), 1);
     ASSERT_EQ(result.Get(2), 3);

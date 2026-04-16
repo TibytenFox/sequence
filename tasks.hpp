@@ -48,13 +48,23 @@ T ComputeMedian(const Sequence<T> &seq) {
     int n = seq.GetLength();
     if (n == 0) throw std::logic_error("Sequence is empty");
 
-    std::vector<T> elements;
-    elements.reserve(n);
-    for (int i = 0; i < n; ++i) {
-        elements.push_back(seq.Get(i));
+    struct Accum {
+        int cnt;
+        T pivot;
     }
-    std::sort(elements.begin(), elements.end());
-    return elements[n / 2];
+
+    auto reducer = [](Accum acc, T x) -> Accum {
+        if (x > acc.pivot) ++acc.cnt;
+    };
+    auto wherer = [](T x) -> bool {
+        Accum init = { 0, x };
+        T cnt = seq.Reduce<Accum>(reducer, init).cnt;
+        if ((cnt == (n - 1) / 2) || (cnt == n / 2)) return true;
+        return false;
+    };
+    auto result = seq.Where(wherer);
+
+    return (result.GetFirst() + result.GetLast()) / 2;
 }
 
 // -------------------- П-3 ------------------------
