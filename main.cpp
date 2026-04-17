@@ -5,13 +5,13 @@
 #include "sequence/MutableListSequence.hpp"
 #include "sequence/ImmutableArraySequence.hpp"
 #include "sequence/ImmutableListSequence.hpp"
+#include "sequence/SequenceOutput.hpp"
 
 // Helper: print a sequence
 template <class Seq>
 void printSequence(const Seq &seq, const std::string &name = "Sequence") {
     std::cout << name << " (length " << seq.GetLength() << "): ";
-    for (int i = 0; i < seq.GetLength(); ++i)
-        std::cout << seq.Get(i) << " ";
+    std::cout << seq;
     std::cout << std::endl;
 }
 

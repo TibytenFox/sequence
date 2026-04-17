@@ -24,4 +24,9 @@ public:
     explicit EmptyCollectionError(const char *msg = "Collection is empty") : Exception(msg) {}
 };
 
+class RunTimeError : public Exception {
+public:
+    explicit RunTimeError(const char *msg = "Error while running program") : Exception(msg) {}
+};
+
 #endif // EXCEPTIONS_HPP

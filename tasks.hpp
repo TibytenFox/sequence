@@ -5,8 +5,8 @@
 #include <vector>
 #include <algorithm>
 #include <stdexcept>
-#include "sequence/array_sequence.hpp"
-#include "sequence/list_sequence.hpp"
+#include "sequence/MutableArraySequence.hpp"
+#include "sequence/MutableListSequence.hpp"
 
 // -------------------- П-1 --------------------
 template <typename T>

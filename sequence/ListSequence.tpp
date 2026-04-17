@@ -17,28 +17,28 @@ ListSequence<T>::~ListSequence() {}
 // ---------- Sequence Interface Implementation ----------
 
 template <class T>
-const T &ListSequence<T>::GetFirst() const { return items.GetFirst(); }
+const T &ListSequence<T>::GetFirst() const { return this->items.GetFirst(); }
 
 template <class T>
-const T &ListSequence<T>::GetLast() const { return items.GetLast(); }
+const T &ListSequence<T>::GetLast() const { return this->items.GetLast(); }
 
 template <class T>
-const T &ListSequence<T>::Get(int index) const { return items.Get(index); }
+const T &ListSequence<T>::Get(int index) const { return this->items.Get(index); }
 
 template <class T>
-int ListSequence<T>::GetLength() const { return items.GetLength(); }
+int ListSequence<T>::GetLength() const { return this->items.GetLength(); }
 
 // Caller responsible for deletion
 template <class T>
 Sequence<T> *ListSequence<T>::GetSubsequence(int start_index, int end_index) const {
-    if (start_index < 0 || end_index >= items.GetLength() || start_index > end_index) {
+    if (start_index < 0 || end_index >= this->items.GetLength() || start_index > end_index) {
         throw IndexOutOfRange("GetSubSequence(): Index out of range");
     }
 
     ISequenceBuilder<T> *builder = this->CreateBuilder();
     int new_size = end_index - start_index + 1;
     for (int i = 0; i < new_size; i++) {
-        builder->Append(items.Get(start_index + i));
+        builder->Append(this->items.Get(start_index + i));
     }
 
     Sequence<T> *result = builder->Build();
@@ -66,6 +66,9 @@ Sequence<T> *ListSequence<T>::InsertAt(T item, int index) {
 template <class T>
 Sequence<T> *ListSequence<T>::Concat(const Sequence<T> *list) const {
     ISequenceBuilder<T> *builder = this->CreateBuilder();
+    for (int i = 0; i < this->GetLength(); i++) {
+        builder->Append(this->Get(i));
+    }
     for (int i = 0; i < list->GetLength(); i++) {
         builder->Append(list->Get(i));
     }
@@ -74,37 +77,6 @@ Sequence<T> *ListSequence<T>::Concat(const Sequence<T> *list) const {
     delete builder;
     return result;
 }
-
-// ---------- Map, Where, Reduce ----------
-
-// template <class T>
-// template <class T2>
-// ListSequence<T2> *ListSequence<T>::Map(T2 (*func)(T)) const {
-//     ListSequence<T2> *mapped_sequence = new ListSequence<T2>();
-//     for (int i = 0; i < GetLength(); i++) {
-//         mapped_sequence->AppendInternal(func(Get(i)));
-//     }
-//     return mapped_sequence;
-// }
-
-// template <class T>
-// ListSequence<T> *ListSequence<T>::Where(bool (*predicate)(T)) const {
-//     ListSequence<T> *filtered_sequence = new ListSequence<T>();
-//     for (int i = 0; i < GetLength(); i++) {
-//         if (predicate(Get(i))) filtered_sequence->AppendInternal(Get(i));
-//     }
-//     return filtered_sequence;
-// }  
-
-// template <class T>
-// template <class T2>
-// T2 ListSequence<T>::Reduce(T2 (*func)(T2, T), T2 initial) const {
-//     T2 result = initial;
-//     for (int i = 0; i < GetLength(); i++) {
-//         result = func(result, Get(i));
-//     }
-//     return result;
-// }
 
 // ---------- Internal Methods ----------
 

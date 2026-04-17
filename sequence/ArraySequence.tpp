@@ -1,6 +1,4 @@
 #include "ArraySequence.hpp"
-// TODO: удалить опреаторы из абстракного класса и перенести их в Mutable и Immutable
-// TODO: перенести исполняемые файлы в build папку
 
 // ---------- Constructors and Destructor ----------
 
@@ -19,16 +17,16 @@ ArraySequence<T>::~ArraySequence() {}
 // ---------- Sequence Interface Implementation ----------
 
 template <class T>
-const T &ArraySequence<T>::GetFirst() const { return items.Get(0); }
+const T &ArraySequence<T>::GetFirst() const { return this->items.Get(0); }
 
 template <class T>
-const T &ArraySequence<T>::GetLast() const { return items.Get(items.GetSize() - 1); }
+const T &ArraySequence<T>::GetLast() const { return this->items.Get(items.GetSize() - 1); }
 
 template <class T>
-const T &ArraySequence<T>::Get(int index) const { return items.Get(index); }
+const T &ArraySequence<T>::Get(int index) const { return this->items.Get(index); }
 
 template <class T>
-int ArraySequence<T>::GetLength() const { return items.GetSize(); }
+int ArraySequence<T>::GetLength() const { return this->items.GetSize(); }
 
 // Caller is responsible for deleting the returned pointer
 template <class T>
@@ -41,7 +39,7 @@ Sequence<T> *ArraySequence<T>::GetSubsequence(int start_index, int end_index) co
     ISequenceBuilder<T> *builder = this->CreateBuilder();
     
     for (int i = 0; i < new_size; i++) {
-        builder->Append(items.Get(start_index + i));
+        builder->Append(this->items.Get(start_index + i));
     }
 
     Sequence<T> *sub_sequence = builder->Build();
@@ -70,8 +68,8 @@ template <class T>
 Sequence<T> *ArraySequence<T>::Concat(const Sequence<T> *list) const {
     ISequenceBuilder<T> *builder = this->CreateBuilder();
 
-    for (int i = 0; i < GetLength(); i++) {
-        builder->Append(Get(i));
+    for (int i = 0; i < this->GetLength(); i++) {
+        builder->Append(this->Get(i));
     }
     for (int i = 0; i < list->GetLength(); i++) {
        builder->Append(list->Get(i));
@@ -86,64 +84,33 @@ Sequence<T> *ArraySequence<T>::Concat(const Sequence<T> *list) const {
 
 template <class T>
 ArraySequence<T> *ArraySequence<T>::AppendInternal(T item) {
-    items.Resize(items.GetSize() + 1);
-    items.Set(items.GetSize() - 1, item);
+    this->items.Resize(this->items.GetSize() + 1);
+    this->items.Set(this->items.GetSize() - 1, item);
     return this;
 }
 
 template <class T>
 ArraySequence<T> *ArraySequence<T>::PrependInternal(T item) {
-    items.Resize(items.GetSize() + 1);
-    for (int i = items.GetSize() - 1; i > 0; i--) {
-        items.Set(i, items.Get(i - 1));
+    this->items.Resize(this->items.GetSize() + 1);
+    for (int i = this->items.GetSize() - 1; i > 0; i--) {
+        this->items.Set(i, this->items.Get(i - 1));
     }
-    items.Set(0, item);
+    this->items.Set(0, item);
     return this;
 }
 
 template <class T>
 ArraySequence<T> *ArraySequence<T>::InsertAtInternal(T item, int index) {
-    if (index < 0 || index > items.GetSize()) {
+    if (index < 0 || index > this->items.GetSize()) {
         throw IndexOutOfRange("InsertAt: invalid index");
     }
-    items.Resize(items.GetSize() + 1);
-    for (int i = items.GetSize() - 1; i > index; i--) {
-        items.Set(i, items.Get(i - 1));
+    this->items.Resize(this->items.GetSize() + 1);
+    for (int i = this->items.GetSize() - 1; i > index; i--) {
+        this->items.Set(i, items.Get(i - 1));
     }
-    items.Set(index, item);
+    this->items.Set(index, item);
     return this;
 }
-
-// ---------- Map, Where, Reduce ----------
-
-// template <class T>
-// template <class T2>
-// ArraySequence<T2> *ArraySequence<T>::Map(T2 (*func)(T)) const {
-//     ArraySequence<T2> *mapped_sequence = new ArraySequence<T2>();
-//     for (int i = 0; i < GetLength(); i++) {
-//         mapped_sequence->AppendInternal(func(Get(i)));
-//     }
-//     return mapped_sequence;
-// }
-
-// template <class T>
-// ArraySequence<T> *ArraySequence<T>::Where(bool (*predicate)(T)) const {
-//     ArraySequence<T> *filtered_sequence = this->CreateEmpty();
-//     for (int i = 0; i < GetLength(); i++) {
-//         if (predicate(Get(i))) filtered_sequence->Append(Get(i));
-//     }
-//     return filtered_sequence;
-// }
-
-// template <class T>
-// template <class T2>
-// T2 ArraySequence<T>::Reduce(T2 (*func)(T2, T), T2 initial) const {
-//     T2 result = initial;
-//     for (int i = 0; i < GetLength(); i++) {
-//         result = func(result, Get(i));
-//     }
-//     return result;
-// }
 
 // ---------- Iterators ----------
 

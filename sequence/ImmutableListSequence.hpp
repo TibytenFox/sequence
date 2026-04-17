@@ -45,70 +45,14 @@ public:
     ImmutableListSequence(const ListSequence<T> &list) : ListSequence<T>(list) {}
     ~ImmutableListSequence() {}
 
-    ImmutableListSequence<T> &operator=(const ImmutableListSequence<T> &other) {
-        if (this != &other) {
-            this->items = other.items;
-        }
-        return *this;
-    }
-
-    bool operator==(const ImmutableListSequence<T> &other) const {
-        if (this->GetLength() != other.GetLength()) return false;
-        for (int i = 0; i < this->GetLength(); ++i) {
-            if (this->Get(i) != other.Get(i)) return false;
-        }
-        return true;
-    }
-
-    bool operator!=(const ImmutableListSequence<T> &other) const {
-        return !(*this == other);
-    }
-
-    T &operator[](int index) {
-        if (index < 0 || index >= this->GetLength()) throw IndexOutOfRange("Operator[]: Index out of range");
-        typename ListSequence<T>::Enumerator *current = this->begin();
-        for (int i = 0; i < index; ++i) {
-            current->Increment();
-        }
-        T &value = current->Dereference();
-        delete current;
-        return value;
-    }
-
-    const T &operator[](int index) const {
-        if (index < 0 || index >= this->GetLength()) throw IndexOutOfRange("Operator[]: Index out of range");
-        typename ListSequence<T>::ConstEnumerator *current = this->begin();
-        for (int i = 0; i < index; ++i) {
-            current->Increment();
-        }
-        const T &value = current->Dereference();
-        delete current;
-        return value;
-    }
-
-    ImmutableListSequence<T> operator+(const ImmutableListSequence<T> &other) const {
-        ImmutableListSequence<T> result(*this);
-        for (int i = 0; i < other.GetLength(); ++i) {
-            result.AppendInternal(other.Get(i));
-        }
-        return result;
-    }
-
-    ImmutableListSequence<T> &operator+=(const T &value) {
-        ImmutableListSequence<T> result(*this);
-        result.AppendInternal(value);
-        *this = result;
-        return *this;
-    }
-
-    ImmutableListSequence<T> &operator+=(const ImmutableListSequence<T> &other) {
-        ImmutableListSequence<T> result(*this);
-        for (int i = 0; i < other.GetLength(); ++i) {
-            result.AppendInternal(other.Get(i));
-        }
-        *this = result;
-        return *this;
-    }
+    ImmutableListSequence<T> &operator=(const ImmutableListSequence<T> &other);
+    bool operator==(const ImmutableListSequence<T> &other) const;
+    bool operator!=(const ImmutableListSequence<T> &other) const;
+    T &operator[](int index);
+    const T &operator[](int index) const;
+    ImmutableListSequence<T> operator+(const ImmutableListSequence<T> &other) const;
+    ImmutableListSequence<T> &operator+=(const T &value);
+    ImmutableListSequence<T> &operator+=(const ImmutableListSequence<T> &other);
 
     virtual Sequence<T> *CreateEmpty() const override { 
         return new ImmutableListSequence<T>(); 
@@ -119,4 +63,5 @@ public:
     }
 };
 
+#include "ImmutableListSequence.tpp"
 #endif // IMMUTABLE_LIST_SEQUENCE_HPP

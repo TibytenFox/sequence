@@ -1,7 +1,8 @@
 #include <iostream>
-#include <stdexcept>
 #include "sequence/MutableArraySequence.hpp"
 #include "sequence/MutableListSequence.hpp"
+#include "sequence/Exceptions.hpp"
+#include "sequence/SequenceOutput.hpp"
 
 #define TEST(name) void name(); \
     struct Register_##name { Register_##name() { register_test(name); std::cout << #name << '\n'; } } reg_##name; \
@@ -15,9 +16,9 @@ void register_test(void (*f)()) {
         f();
         ++tests_passed;
         std::cout << "[PASS]\t";
-    } catch (const std::exception& e) {
+    } catch (const Exception &e) {
         ++tests_failed;
-        std::cout << "[FAIL] " << e.what() << "\t";
+        std::cout << "[FAIL] " << e.GetMessage() << "\t";
     } catch (...) {
         ++tests_failed;
         std::cout << "[FAIL] Unknown exception\t";
@@ -25,7 +26,7 @@ void register_test(void (*f)()) {
 }
 
 #define ASSERT_EQ(x, y) \
-    if ((x) != (y)) throw std::runtime_error("ASSERT_EQ failed: " #x " != " #y)
+    if ((x) != (y)) throw RunTimeError("ASSERT_EQ failed: " #x " != " #y)
 
 #define ASSERT_THROWS(expr, exc) \
     do { \
@@ -33,13 +34,13 @@ void register_test(void (*f)()) {
         try { expr; } \
         catch (const exc&) { caught = true; } \
         catch (...) {} \
-        if (!caught) throw std::runtime_error("ASSERT_THROWS failed: " #expr); \
+        if (!caught) throw RunTimeError("ASSERT_THROWS failed: " #expr); \
     } while(0)
 
 #define ASSERT_NO_THROW(expr) \
     do { \
         try { expr; } \
-        catch (...) { throw std::runtime_error("ASSERT_NO_THROW failed: " #expr); } \
+        catch (...) { throw RunTimeError("ASSERT_NO_THROW failed: " #expr); } \
     } while(0)
 
 // -------------------- Tests for ArraySequence --------------------
@@ -47,8 +48,8 @@ void register_test(void (*f)()) {
 TEST(ArraySequence_DefaultConstructor) {
     MutableArraySequence<int> seq;
     ASSERT_EQ(seq.GetLength(), 0);
-    ASSERT_THROWS(seq.GetFirst(), std::out_of_range);
-    ASSERT_THROWS(seq.GetLast(), std::out_of_range);
+    ASSERT_THROWS(seq.GetFirst(), EmptyCollectionError);
+    ASSERT_THROWS(seq.GetLast(), EmptyCollectionError);
 }
 
 TEST(ArraySequence_ConstructorFromArray) {
@@ -101,7 +102,7 @@ TEST(ArraySequence_InsertAt) {
     ASSERT_EQ(seq.GetFirst(), 0);
     seq.InsertAt(4, seq.GetLength()); 
     ASSERT_EQ(seq.GetLast(), 4);
-    ASSERT_THROWS(seq.InsertAt(99, 10), std::out_of_range);
+    ASSERT_THROWS(seq.InsertAt(99, 10), IndexOutOfRange);
 }
 
 TEST(ArraySequence_GetSubsequence) {
@@ -113,9 +114,9 @@ TEST(ArraySequence_GetSubsequence) {
     ASSERT_EQ(sub->Get(2), 40);
     delete sub;
 
-    ASSERT_THROWS(seq.GetSubsequence(2, 1), std::out_of_range);
-    ASSERT_THROWS(seq.GetSubsequence(-1, 2), std::out_of_range);
-    ASSERT_THROWS(seq.GetSubsequence(2, 10), std::out_of_range);
+    ASSERT_THROWS(seq.GetSubsequence(2, 1), IndexOutOfRange);
+    ASSERT_THROWS(seq.GetSubsequence(-1, 2), IndexOutOfRange);
+    ASSERT_THROWS(seq.GetSubsequence(2, 10), IndexOutOfRange);
 }
 
 TEST(ArraySequence_Concat) {
@@ -182,7 +183,7 @@ TEST(ArraySequence_SubscriptOperator) {
     ASSERT_EQ(seq[1], 99);
     const MutableArraySequence<int> &constSeq = seq;
     ASSERT_EQ(constSeq[1], 99);
-    ASSERT_THROWS(seq[5], std::out_of_range);
+    ASSERT_THROWS(seq[5], IndexOutOfRange);
 }
 
 TEST(ArraySequence_Iterator) {
@@ -229,7 +230,7 @@ TEST(ArraySequence_OperatorPlusEqual) {
 TEST(ListSequence_DefaultConstructor) {
     MutableListSequence<int> seq;
     ASSERT_EQ(seq.GetLength(), 0);
-    ASSERT_THROWS(seq.GetFirst(), std::out_of_range);
+    ASSERT_THROWS(seq.GetFirst(), EmptyCollectionError);
 }
 
 TEST(ListSequence_ConstructorFromArray) {
@@ -280,7 +281,7 @@ TEST(ListSequence_InsertAt) {
     ASSERT_EQ(seq.GetFirst(), 0);
     seq.InsertAt(4, seq.GetLength());
     ASSERT_EQ(seq.GetLast(), 4);
-    ASSERT_THROWS(seq.InsertAt(99, 10), std::out_of_range);
+    ASSERT_THROWS(seq.InsertAt(99, 10), IndexOutOfRange);
 }
 
 TEST(ListSequence_GetSubsequence) {
@@ -353,7 +354,7 @@ TEST(ListSequence_SubscriptOperator) {
     ASSERT_EQ(seq[1], 99);
     const MutableListSequence<int>& constSeq = seq;
     ASSERT_EQ(constSeq[1], 99);
-    ASSERT_THROWS(seq[5], std::out_of_range);
+    ASSERT_THROWS(seq[5], IndexOutOfRange);
 }
 
 TEST(ListSequence_Iterator) {

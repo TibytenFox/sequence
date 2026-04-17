@@ -12,10 +12,9 @@ std::ostream &operator<< (std::ostream &os, const Sequence<T> &seq) {
     IConstEnumerator<T> *en = seq.begin();
     IConstEnumerator<T> *end = seq.end();
 
-
-    for (; *en != *end; ++(*end)) {
+    for (; *en != *end; ++(*en)) {
         if (!is_first) {
-            os << ', ';
+            os << ", ";
         }
         os << **en;
         is_first = false;

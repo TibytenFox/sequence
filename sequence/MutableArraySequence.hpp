@@ -45,52 +45,14 @@ public:
     MutableArraySequence(const ArraySequence<T> &list) : ArraySequence<T> (list) {}
     ~MutableArraySequence() {}
 
-    MutableArraySequence<T> &operator=(const MutableArraySequence<T> &other) {
-        if (this != &other) {
-            this->items = other.items;
-        }
-        return *this;
-    }
-
-    bool operator==(const MutableArraySequence<T> &other) const {
-        if (this->GetLength() != other.GetLength()) return false;
-        for (int i = 0; i < this->GetLength(); ++i) {
-            if (this->Get(i) != other.Get(i)) return false;
-        }
-        return true;
-    }
-
-    bool operator!=(const MutableArraySequence<T> &other) const {
-        return !(*this == other);
-    }
-
-    T &operator[](int index) {
-        return this->items[index];
-    }
-
-    const T &operator[](int index) const {
-        return this->items.Get(index);
-    }
-
-    MutableArraySequence<T> operator+(const MutableArraySequence<T> &other) const {
-        MutableArraySequence<T> result(*this);
-        for (int i = 0; i < other.GetLength(); ++i) {
-            result.Append(other.Get(i));
-        }
-        return result;
-    }
-
-    MutableArraySequence<T> &operator+=(const T &value) {
-        this->Append(value);
-        return *this;
-    }
-
-    MutableArraySequence<T> &operator+=(const MutableArraySequence<T> &other) {
-        for (int i = 0; i < other.GetLength(); ++i) {
-            this->Append(other.Get(i));
-        }
-        return *this;
-    }
+    MutableArraySequence<T> &operator=(const MutableArraySequence<T> &other);
+    bool operator==(const MutableArraySequence<T> &other) const;
+    bool operator!=(const MutableArraySequence<T> &other) const;
+    T &operator[](int index);
+    const T &operator[](int index) const;
+    MutableArraySequence<T> operator+(const MutableArraySequence<T> &other) const;
+    MutableArraySequence<T> &operator+=(const T &value);
+    MutableArraySequence<T> &operator+=(const MutableArraySequence<T> &other);
 
     virtual Sequence<T> *CreateEmpty() const override { 
         return new MutableArraySequence<T>(); 
@@ -101,4 +63,5 @@ public:
     }
 };
 
+#include "MutableArraySequence.tpp"
 #endif // MUTALBE_ARRAY_SEQUENCE_HPP
