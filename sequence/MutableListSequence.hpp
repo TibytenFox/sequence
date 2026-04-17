@@ -49,7 +49,7 @@ public:
     bool operator==(const MutableListSequence<T> &other) const;
     bool operator!=(const MutableListSequence<T> &other) const;
     T &operator[](int index);
-    const T &operator[](int index) const;
+    const T &operator[](int index) const override;
     MutableListSequence<T> operator+(const MutableListSequence<T> &other) const;
     MutableListSequence<T> &operator+=(const T &value);
     MutableListSequence<T> &operator+=(const MutableListSequence<T> &other);

@@ -42,6 +42,9 @@ public:
     template <class T2>
     T2 Reduce(T2 (*func)(T2, T), T initial) const;
 
+    // ---------- Operators ----------
+    virtual const T &operator[](int index) const = 0;
+
     virtual ~Sequence() = default;
 };
 

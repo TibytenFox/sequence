@@ -49,7 +49,7 @@ public:
     bool operator==(const MutableArraySequence<T> &other) const;
     bool operator!=(const MutableArraySequence<T> &other) const;
     T &operator[](int index);
-    const T &operator[](int index) const;
+    const T &operator[](int index) const override;
     MutableArraySequence<T> operator+(const MutableArraySequence<T> &other) const;
     MutableArraySequence<T> &operator+=(const T &value);
     MutableArraySequence<T> &operator+=(const MutableArraySequence<T> &other);

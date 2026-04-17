@@ -1,7 +1,5 @@
 #include "Sequence.hpp"
 
-// TODO: GetLength() и тому подобное через this
-
 // Map-Reduce
 
 template <class T>

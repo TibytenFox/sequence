@@ -31,7 +31,7 @@ int ArraySequence<T>::GetLength() const { return this->items.GetSize(); }
 // Caller is responsible for deleting the returned pointer
 template <class T>
 Sequence<T> *ArraySequence<T>::GetSubsequence(int start_index, int end_index) const {
-    if (start_index < 0 || end_index >= items.GetSize() || start_index > end_index) {
+    if (start_index < 0 || end_index >= this->items.GetSize() || start_index > end_index) {
         throw IndexOutOfRange("GetSubSequence: Invalid indicies");
     }
 
@@ -106,7 +106,7 @@ ArraySequence<T> *ArraySequence<T>::InsertAtInternal(T item, int index) {
     }
     this->items.Resize(this->items.GetSize() + 1);
     for (int i = this->items.GetSize() - 1; i > index; i--) {
-        this->items.Set(i, items.Get(i - 1));
+        this->items.Set(i, this->items.Get(i - 1));
     }
     this->items.Set(index, item);
     return this;

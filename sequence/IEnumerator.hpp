@@ -1,8 +1,6 @@
 #ifndef IENUMERATOR_HPP
 #define IENUMERATOR_HPP
 
-// TODO: переписать к виду MoveNext()
-
 template <class T>
 class IEnumerator {
 public:

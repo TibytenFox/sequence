@@ -2,7 +2,7 @@
 #include "sequence/MutableArraySequence.hpp"
 #include "sequence/MutableListSequence.hpp"
 #include "sequence/Exceptions.hpp"
-#include "sequence/SequenceOutput.hpp"
+#include "sequence/Utilities.hpp"
 
 #define TEST(name) void name(); \
     struct Register_##name { Register_##name() { register_test(name); std::cout << #name << '\n'; } } reg_##name; \
@@ -398,6 +398,263 @@ TEST(ListSequence_OperatorPlusEqual) {
     seq += other;
     ASSERT_EQ(seq.GetLength(), 4);
     ASSERT_EQ(seq.Get(2), 3);
+}
+
+// -------------------- Tests for Utilities: Split (ArraySequence) --------------------
+
+TEST(ArraySequence_SplitBasic) {
+    int arr[] = {1, 0, 2, 0, 3};
+    MutableArraySequence<int> seq(arr, 5);
+    Sequence<Sequence<int>*> *result = SequenceUtilities::Split(seq, 0);
+    ASSERT_EQ(result->GetLength(), 3);
+    ASSERT_EQ(result->Get(0)->GetLength(), 1);
+    ASSERT_EQ(result->Get(0)->Get(0), 1);
+    ASSERT_EQ(result->Get(1)->GetLength(), 1);
+    ASSERT_EQ(result->Get(1)->Get(0), 2);
+    ASSERT_EQ(result->Get(2)->GetLength(), 1);
+    ASSERT_EQ(result->Get(2)->Get(0), 3);
+    delete result;
+}
+
+TEST(ArraySequence_SplitConsecutiveDelimiters) {
+    int arr[] = {1, 0, 0, 2};
+    MutableArraySequence<int> seq(arr, 4);
+    Sequence<Sequence<int>*> *result = SequenceUtilities::Split(seq, 0);
+    ASSERT_EQ(result->GetLength(), 3);
+    ASSERT_EQ(result->Get(0)->GetLength(), 1);
+    ASSERT_EQ(result->Get(0)->Get(0), 1);
+    ASSERT_EQ(result->Get(1)->GetLength(), 0);
+    ASSERT_EQ(result->Get(2)->GetLength(), 1);
+    ASSERT_EQ(result->Get(2)->Get(0), 2);
+    delete result;
+}
+
+TEST(ArraySequence_SplitNoDelimiter) {
+    int arr[] = {1, 2, 3};
+    MutableArraySequence<int> seq(arr, 3);
+    Sequence<Sequence<int>*> *result = SequenceUtilities::Split(seq, 0);
+    ASSERT_EQ(result->GetLength(), 1);
+    ASSERT_EQ(result->Get(0)->GetLength(), 3);
+    ASSERT_EQ(result->Get(0)->Get(0), 1);
+    ASSERT_EQ(result->Get(0)->Get(2), 3);
+    delete result;
+}
+
+TEST(ArraySequence_SplitAllDelimiters) {
+    int arr[] = {0, 0, 0};
+    MutableArraySequence<int> seq(arr, 3);
+    Sequence<Sequence<int>*> *result = SequenceUtilities::Split(seq, 0);
+    ASSERT_EQ(result->GetLength(), 4);
+    ASSERT_EQ(result->Get(0)->GetLength(), 0);
+    ASSERT_EQ(result->Get(1)->GetLength(), 0);
+    ASSERT_EQ(result->Get(2)->GetLength(), 0);
+    ASSERT_EQ(result->Get(3)->GetLength(), 0);
+    delete result;
+}
+
+// -------------------- Tests for Utilities: Zip (ArraySequence) --------------------
+
+TEST(ArraySequence_ZipBasic) {
+    int a[] = {1, 2, 3};
+    int b[] = {10, 20, 30};
+    MutableArraySequence<int> seq1(a, 3);
+    MutableArraySequence<int> seq2(b, 3);
+    Sequence<SequenceUtilities::Pair<int, int>> *result = SequenceUtilities::Zip(seq1, seq2);
+    ASSERT_EQ(result->GetLength(), 3);
+    ASSERT_EQ(result->Get(0).first, 1);
+    ASSERT_EQ(result->Get(0).second, 10);
+    ASSERT_EQ(result->Get(1).first, 2);
+    ASSERT_EQ(result->Get(1).second, 20);
+    ASSERT_EQ(result->Get(2).first, 3);
+    ASSERT_EQ(result->Get(2).second, 30);
+    delete result;
+}
+
+TEST(ArraySequence_ZipDifferentLengths) {
+    int a[] = {1, 2, 3, 4, 5};
+    int b[] = {10, 20};
+    MutableArraySequence<int> seq1(a, 5);
+    MutableArraySequence<int> seq2(b, 2);
+    Sequence<SequenceUtilities::Pair<int, int>> *result = SequenceUtilities::Zip(seq1, seq2);
+    ASSERT_EQ(result->GetLength(), 2);
+    ASSERT_EQ(result->Get(0).first, 1);
+    ASSERT_EQ(result->Get(0).second, 10);
+    ASSERT_EQ(result->Get(1).first, 2);
+    ASSERT_EQ(result->Get(1).second, 20);
+    delete result;
+}
+
+TEST(ArraySequence_ZipEmptySequence) {
+    MutableArraySequence<int> seq1;
+    MutableArraySequence<int> seq2;
+    Sequence<SequenceUtilities::Pair<int, int>> *result = SequenceUtilities::Zip(seq1, seq2);
+    ASSERT_EQ(result->GetLength(), 0);
+    delete result;
+}
+
+// -------------------- Tests for Utilities: Unzip (ArraySequence) --------------------
+
+TEST(ArraySequence_UnzipBasic) {
+    MutableArraySequence<SequenceUtilities::Pair<int, int>> *pairs = 
+        new MutableArraySequence<SequenceUtilities::Pair<int, int>>();
+    pairs->Append(SequenceUtilities::Pair<int, int>(1, 10));
+    pairs->Append(SequenceUtilities::Pair<int, int>(2, 20));
+    pairs->Append(SequenceUtilities::Pair<int, int>(3, 30));
+    
+    auto result = SequenceUtilities::Unzip(*pairs);
+    ASSERT_EQ(result.first->GetLength(), 3);
+    ASSERT_EQ(result.second->GetLength(), 3);
+    ASSERT_EQ(result.first->Get(0), 1);
+    ASSERT_EQ(result.first->Get(1), 2);
+    ASSERT_EQ(result.first->Get(2), 3);
+    ASSERT_EQ(result.second->Get(0), 10);
+    ASSERT_EQ(result.second->Get(1), 20);
+    ASSERT_EQ(result.second->Get(2), 30);
+    
+    delete result.first;
+    delete result.second;
+    delete pairs;
+}
+
+TEST(ArraySequence_UnzipSinglePair) {
+    MutableArraySequence<SequenceUtilities::Pair<int, int>> *pairs = 
+        new MutableArraySequence<SequenceUtilities::Pair<int, int>>();
+    pairs->Append(SequenceUtilities::Pair<int, int>(5, 50));
+    
+    auto result = SequenceUtilities::Unzip(*pairs);
+    ASSERT_EQ(result.first->GetLength(), 1);
+    ASSERT_EQ(result.second->GetLength(), 1);
+    ASSERT_EQ(result.first->Get(0), 5);
+    ASSERT_EQ(result.second->Get(0), 50);
+    
+    delete result.first;
+    delete result.second;
+    delete pairs;
+}
+
+TEST(ArraySequence_UnzipEmpty) {
+    MutableArraySequence<SequenceUtilities::Pair<int, int>> *pairs = 
+        new MutableArraySequence<SequenceUtilities::Pair<int, int>>();
+    
+    auto result = SequenceUtilities::Unzip(*pairs);
+    ASSERT_EQ(result.first->GetLength(), 0);
+    ASSERT_EQ(result.second->GetLength(), 0);
+    
+    delete result.first;
+    delete result.second;
+    delete pairs;
+}
+
+// -------------------- Tests for Utilities: Split (ListSequence) --------------------
+
+TEST(ListSequence_SplitBasic) {
+    int arr[] = {1, 0, 2, 0, 3};
+    MutableListSequence<int> seq(arr, 5);
+    Sequence<Sequence<int>*> *result = SequenceUtilities::Split(seq, 0);
+    ASSERT_EQ(result->GetLength(), 3);
+    ASSERT_EQ(result->Get(0)->GetLength(), 1);
+    ASSERT_EQ(result->Get(0)->Get(0), 1);
+    ASSERT_EQ(result->Get(1)->GetLength(), 1);
+    ASSERT_EQ(result->Get(1)->Get(0), 2);
+    ASSERT_EQ(result->Get(2)->GetLength(), 1);
+    ASSERT_EQ(result->Get(2)->Get(0), 3);
+    delete result;
+}
+
+TEST(ListSequence_SplitConsecutiveDelimiters) {
+    int arr[] = {1, 5, 5, 2};
+    MutableListSequence<int> seq(arr, 4);
+    Sequence<Sequence<int>*> *result = SequenceUtilities::Split(seq, 5);
+    ASSERT_EQ(result->GetLength(), 3);
+    ASSERT_EQ(result->Get(0)->GetLength(), 1);
+    ASSERT_EQ(result->Get(0)->Get(0), 1);
+    ASSERT_EQ(result->Get(1)->GetLength(), 0);
+    ASSERT_EQ(result->Get(2)->GetLength(), 1);
+    ASSERT_EQ(result->Get(2)->Get(0), 2);
+    delete result;
+}
+
+TEST(ListSequence_SplitNoDelimiter) {
+    int arr[] = {1, 2, 3};
+    MutableListSequence<int> seq(arr, 3);
+    Sequence<Sequence<int>*> *result = SequenceUtilities::Split(seq, 0);
+    ASSERT_EQ(result->GetLength(), 1);
+    ASSERT_EQ(result->Get(0)->GetLength(), 3);
+    ASSERT_EQ(result->Get(0)->Get(0), 1);
+    ASSERT_EQ(result->Get(0)->Get(2), 3);
+    delete result;
+}
+
+// -------------------- Tests for Utilities: Zip (ListSequence) --------------------
+
+TEST(ListSequence_ZipBasic) {
+    int a[] = {1, 2, 3};
+    int b[] = {10, 20, 30};
+    MutableListSequence<int> seq1(a, 3);
+    MutableListSequence<int> seq2(b, 3);
+    Sequence<SequenceUtilities::Pair<int, int>> *result = SequenceUtilities::Zip(seq1, seq2);
+    ASSERT_EQ(result->GetLength(), 3);
+    ASSERT_EQ(result->Get(0).first, 1);
+    ASSERT_EQ(result->Get(0).second, 10);
+    ASSERT_EQ(result->Get(1).first, 2);
+    ASSERT_EQ(result->Get(1).second, 20);
+    ASSERT_EQ(result->Get(2).first, 3);
+    ASSERT_EQ(result->Get(2).second, 30);
+    delete result;
+}
+
+TEST(ListSequence_ZipDifferentLengths) {
+    int a[] = {1, 2, 3, 4};
+    int b[] = {10, 20};
+    MutableListSequence<int> seq1(a, 4);
+    MutableListSequence<int> seq2(b, 2);
+    Sequence<SequenceUtilities::Pair<int, int>> *result = SequenceUtilities::Zip(seq1, seq2);
+    ASSERT_EQ(result->GetLength(), 2);
+    ASSERT_EQ(result->Get(0).first, 1);
+    ASSERT_EQ(result->Get(0).second, 10);
+    ASSERT_EQ(result->Get(1).first, 2);
+    ASSERT_EQ(result->Get(1).second, 20);
+    delete result;
+}
+
+// -------------------- Tests for Utilities: Unzip (ListSequence) --------------------
+
+TEST(ListSequence_UnzipBasic) {
+    MutableListSequence<SequenceUtilities::Pair<int, int>> *pairs = 
+        new MutableListSequence<SequenceUtilities::Pair<int, int>>();
+    pairs->Append(SequenceUtilities::Pair<int, int>(1, 10));
+    pairs->Append(SequenceUtilities::Pair<int, int>(2, 20));
+    pairs->Append(SequenceUtilities::Pair<int, int>(3, 30));
+    
+    auto result = SequenceUtilities::Unzip(*pairs);
+    ASSERT_EQ(result.first->GetLength(), 3);
+    ASSERT_EQ(result.second->GetLength(), 3);
+    ASSERT_EQ(result.first->Get(0), 1);
+    ASSERT_EQ(result.first->Get(1), 2);
+    ASSERT_EQ(result.first->Get(2), 3);
+    ASSERT_EQ(result.second->Get(0), 10);
+    ASSERT_EQ(result.second->Get(1), 20);
+    ASSERT_EQ(result.second->Get(2), 30);
+    
+    delete result.first;
+    delete result.second;
+    delete pairs;
+}
+
+TEST(ListSequence_UnzipSinglePair) {
+    MutableListSequence<SequenceUtilities::Pair<int, int>> *pairs = 
+        new MutableListSequence<SequenceUtilities::Pair<int, int>>();
+    pairs->Append(SequenceUtilities::Pair<int, int>(7, 70));
+    
+    auto result = SequenceUtilities::Unzip(*pairs);
+    ASSERT_EQ(result.first->GetLength(), 1);
+    ASSERT_EQ(result.second->GetLength(), 1);
+    ASSERT_EQ(result.first->Get(0), 7);
+    ASSERT_EQ(result.second->Get(0), 70);
+    
+    delete result.first;
+    delete result.second;
+    delete pairs;
 }
 
 // -------------------- MAIN --------------------
