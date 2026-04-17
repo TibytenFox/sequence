@@ -26,24 +26,6 @@ protected:
     private:
         NodePointerType current;
     };
-
-    // Const Iterator for ListSequence
-    class ConstEnumerator : public IConstEnumerator<T> {
-    public:
-        using ValueType = T;
-        using PointerType = ValueType*;
-        using NodePointerType = typename LinkedList<T>::Node*;
-        using ReferenceType = ValueType&;
-
-        ConstEnumerator(NodePointerType ptr);
-
-        void Increment() override;
-        void Decrement() override;
-        const T &Dereference() const override;
-        bool Equals(const IConstEnumerator<T> &other) const override;
-    private:
-        NodePointerType current;
-    };
 public:
     // ---------- Constructors and Destructor ----------
     ListSequence();
@@ -62,20 +44,8 @@ public:
     virtual Sequence<T> *InsertAt(T item, int index) override;
     virtual Sequence<T> *Concat(const Sequence<T> *list) const override;
 
-    // ---------- Map-Reduce ----------
-    // template <class T2>
-    // ListSequence<T2> *Map(T2 (*func)(T)) const;
-
-    // ListSequence<T> *Where(bool (*predicate)(T)) const override;
-    
-    // template <class T2>
-    // T2 Reduce(T2 (*func)(T2, T), T2 initial) const;
-
     // ---------- Iterators ----------
-    Enumerator *begin() override;
-    Enumerator *end() override ;
-    ConstEnumerator *begin() const override;
-    ConstEnumerator *end() const override;
+    virtual IEnumerator<T> *GetEnumerator() const override;
 
 protected:
     virtual ListSequence<T> *Instance() = 0;

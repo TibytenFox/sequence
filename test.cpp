@@ -1,6 +1,8 @@
 #include <iostream>
 #include "sequence/MutableArraySequence.hpp"
 #include "sequence/MutableListSequence.hpp"
+#include "sequence/ImmutableArraySequence.hpp"
+#include "sequence/ImmutableListSequence.hpp"
 #include "sequence/Exceptions.hpp"
 #include "sequence/Utilities.hpp"
 
@@ -193,12 +195,12 @@ TEST(ArraySequence_Iterator) {
     for (int i = 0; i < seq.GetLength(); i++) sum += seq[i];
     ASSERT_EQ(sum, 6);
 
-    auto it = seq.begin();
-    ASSERT_EQ(**it, 1);
-    ++(*it);
-    ASSERT_EQ(**it, 2);
-    --(*it);
-    ASSERT_EQ(**it, 1);
+    auto it = seq.GetEnumerator();
+    it->MoveNext();
+    ASSERT_EQ(it->GetCurrent(), 1);
+    it->MoveNext();
+    ASSERT_EQ(it->GetCurrent(), 2);
+    delete it;
 }
 
 TEST(ArraySequence_OperatorPlus) {
@@ -361,19 +363,17 @@ TEST(ListSequence_Iterator) {
     MutableListSequence<int> seq;
     seq.Append(1); seq.Append(2); seq.Append(3);
     int sum = 0;
-    IEnumerator<int> *en = seq.begin();
-    IEnumerator<int> *end = seq.end();
-    for (; (*en) != (*end); ++(*en)) sum += **en;
+    IEnumerator<int> *en = seq.GetEnumerator();
+    while (en->MoveNext()) sum += en->GetCurrent();
     delete en;
-    delete end;
     ASSERT_EQ(sum, 6);
 
-    auto it = seq.begin();
-    ASSERT_EQ(**it, 1);
-    ++(*it);
-    ASSERT_EQ(**it, 2);
-    --(*it);
-    ASSERT_EQ(**it, 1);
+    auto it = seq.GetEnumerator();
+    it->MoveNext();
+    ASSERT_EQ(it->GetCurrent(), 1);
+    it->MoveNext();
+    ASSERT_EQ(it->GetCurrent(), 2);
+    delete it;
 }
 
 TEST(ListSequence_OperatorPlus) {
@@ -657,8 +657,224 @@ TEST(ListSequence_UnzipSinglePair) {
     delete pairs;
 }
 
-// -------------------- MAIN --------------------
+// -------------------- Tests for ImmutableArraySequence --------------------
 
+TEST(ImmutableArraySequence_DefaultConstructor) {
+    ImmutableArraySequence<int> seq;
+    ASSERT_EQ(seq.GetLength(), 0);
+    ASSERT_THROWS(seq.GetFirst(), EmptyCollectionError);
+    ASSERT_THROWS(seq.GetLast(), EmptyCollectionError);
+}
+
+TEST(ImmutableArraySequence_ConstructorFromArray) {
+    int arr[] = {1, 2, 3};
+    ImmutableArraySequence<int> seq(arr, 3);
+    ASSERT_EQ(seq.GetLength(), 3);
+    ASSERT_EQ(seq.GetFirst(), 1);
+    ASSERT_EQ(seq.GetLast(), 3);
+    ASSERT_EQ(seq.Get(1), 2);
+}
+
+TEST(ImmutableArraySequence_CopyConstructor) {
+    int arr[] = {5, 6, 7};
+    ImmutableArraySequence<int> seq1(arr, 3);
+    ImmutableArraySequence<int> seq2(seq1);
+    ASSERT_EQ(seq2.GetLength(), 3);
+    ASSERT_EQ(seq2.Get(0), 5);
+    ASSERT_EQ(seq2.Get(2), 7);
+}
+
+TEST(ImmutableArraySequence_GetSubsequence) {
+    int arr[] = {10, 20, 30, 40, 50};
+    ImmutableArraySequence<int> seq(arr, 5);
+    Sequence<int> *sub = seq.GetSubsequence(1, 3);
+    ASSERT_EQ(sub->GetLength(), 3);
+    ASSERT_EQ(sub->Get(0), 20);
+    ASSERT_EQ(sub->Get(2), 40);
+    delete sub;
+}
+
+TEST(ImmutableArraySequence_Concat) {
+    int a[] = {1, 2};
+    int b[] = {3, 4};
+    ImmutableArraySequence<int> seqA(a, 2);
+    ImmutableArraySequence<int> seqB(b, 2);
+    Sequence<int> *concat = seqA.Concat(&seqB);
+    ASSERT_EQ(concat->GetLength(), 4);
+    ASSERT_EQ(concat->Get(0), 1);
+    ASSERT_EQ(concat->Get(2), 3);
+    ASSERT_EQ(concat->Get(3), 4);
+    delete concat;
+}
+
+TEST(ImmutableArraySequence_Map) {
+    int arr[] = {1, 2, 3};
+    ImmutableArraySequence<int> seq(arr, 3);
+    Sequence<int> *squares = seq.Map<int>([](int x) { return x * x; });
+    ASSERT_EQ(squares->GetLength(), 3);
+    ASSERT_EQ(squares->Get(0), 1);
+    ASSERT_EQ(squares->Get(1), 4);
+    ASSERT_EQ(squares->Get(2), 9);
+    delete squares;
+}
+
+TEST(ImmutableArraySequence_Where) {
+    int arr[] = {1, 2, 3, 4};
+    ImmutableArraySequence<int> seq(arr, 4);
+    Sequence<int> *evens = seq.Where([](int x) { return x % 2 == 0; });
+    ASSERT_EQ(evens->GetLength(), 2);
+    ASSERT_EQ(evens->Get(0), 2);
+    ASSERT_EQ(evens->Get(1), 4);
+    delete evens;
+}
+
+TEST(ImmutableArraySequence_Reduce) {
+    int arr[] = {1, 2, 3, 4};
+    ImmutableArraySequence<int> seq(arr, 4);
+    int sum = seq.Reduce<int>([](int acc, int x) { return acc + x; }, 0);
+    ASSERT_EQ(sum, 10);
+}
+
+TEST(ImmutableArraySequence_EqualityOperator) {
+    int arr1[] = {1, 2, 3};
+    int arr2[] = {1, 2, 3};
+    int arr3[] = {1, 2, 4};
+    ImmutableArraySequence<int> seq1(arr1, 3);
+    ImmutableArraySequence<int> seq2(arr2, 3);
+    ImmutableArraySequence<int> seq3(arr3, 3);
+    ASSERT_EQ(seq1 == seq2, true);
+    ASSERT_EQ(seq1 == seq3, false);
+}
+
+TEST(ImmutableArraySequence_SubscriptOperator) {
+    int arr[] = {10, 20, 30};
+    ImmutableArraySequence<int> seq(arr, 3);
+    ASSERT_EQ(seq[0], 10);
+    ASSERT_EQ(seq[2], 30);
+    const ImmutableArraySequence<int> &constSeq = seq;
+    ASSERT_EQ(constSeq[1], 20);
+    ASSERT_THROWS(seq[5], IndexOutOfRange);
+}
+
+TEST(ImmutableArraySequence_Iterator) {
+    int arr[] = {1, 2, 3};
+    ImmutableArraySequence<int> seq(arr, 3);
+    int sum = 0;
+    auto it = seq.GetEnumerator();
+    while (it->MoveNext()) sum += it->GetCurrent();
+    delete it;
+    ASSERT_EQ(sum, 6);
+}
+
+// -------------------- Tests for ImmutableListSequence --------------------
+
+TEST(ImmutableListSequence_DefaultConstructor) {
+    ImmutableListSequence<int> seq;
+    ASSERT_EQ(seq.GetLength(), 0);
+    ASSERT_THROWS(seq.GetFirst(), EmptyCollectionError);
+}
+
+TEST(ImmutableListSequence_ConstructorFromArray) {
+    int arr[] = {1, 2, 3};
+    ImmutableListSequence<int> seq(arr, 3);
+    ASSERT_EQ(seq.GetLength(), 3);
+    ASSERT_EQ(seq.GetFirst(), 1);
+    ASSERT_EQ(seq.GetLast(), 3);
+    ASSERT_EQ(seq.Get(1), 2);
+}
+
+TEST(ImmutableListSequence_CopyConstructor) {
+    int arr[] = {5, 6, 7};
+    ImmutableListSequence<int> seq1(arr, 3);
+    ImmutableListSequence<int> seq2(seq1);
+    ASSERT_EQ(seq2.GetLength(), 3);
+    ASSERT_EQ(seq2.Get(0), 5);
+    ASSERT_EQ(seq2.Get(2), 7);
+}
+
+TEST(ImmutableListSequence_GetSubsequence) {
+    int arr[] = {10, 20, 30, 40, 50};
+    ImmutableListSequence<int> seq(arr, 5);
+    Sequence<int> *sub = seq.GetSubsequence(1, 3);
+    ASSERT_EQ(sub->GetLength(), 3);
+    ASSERT_EQ(sub->Get(0), 20);
+    ASSERT_EQ(sub->Get(2), 40);
+    delete sub;
+}
+
+TEST(ImmutableListSequence_Concat) {
+    int a[] = {1, 2};
+    int b[] = {3, 4};
+    ImmutableListSequence<int> seqA(a, 2);
+    ImmutableListSequence<int> seqB(b, 2);
+    Sequence<int> *concat = seqA.Concat(&seqB);
+    ASSERT_EQ(concat->GetLength(), 4);
+    ASSERT_EQ(concat->Get(0), 1);
+    ASSERT_EQ(concat->Get(2), 3);
+    ASSERT_EQ(concat->Get(3), 4);
+    delete concat;
+}
+
+TEST(ImmutableListSequence_Map) {
+    int arr[] = {1, 2, 3};
+    ImmutableListSequence<int> seq(arr, 3);
+    Sequence<int> *squares = seq.Map<int>([](int x) { return x * x; });
+    ASSERT_EQ(squares->GetLength(), 3);
+    ASSERT_EQ(squares->Get(0), 1);
+    ASSERT_EQ(squares->Get(1), 4);
+    ASSERT_EQ(squares->Get(2), 9);
+    delete squares;
+}
+
+TEST(ImmutableListSequence_Where) {
+    int arr[] = {1, 2, 3, 4};
+    ImmutableListSequence<int> seq(arr, 4);
+    Sequence<int> *evens = seq.Where([](int x) { return x % 2 == 0; });
+    ASSERT_EQ(evens->GetLength(), 2);
+    ASSERT_EQ(evens->Get(0), 2);
+    ASSERT_EQ(evens->Get(1), 4);
+    delete evens;
+}
+
+TEST(ImmutableListSequence_Reduce) {
+    int arr[] = {1, 2, 3, 4};
+    ImmutableListSequence<int> seq(arr, 4);
+    int sum = seq.Reduce<int>([](int acc, int x) { return acc + x; }, 0);
+    ASSERT_EQ(sum, 10);
+}
+
+TEST(ImmutableListSequence_EqualityOperator) {
+    int arr1[] = {1, 2, 3};
+    int arr2[] = {1, 2, 3};
+    int arr3[] = {1, 2, 4};
+    ImmutableListSequence<int> seq1(arr1, 3);
+    ImmutableListSequence<int> seq2(arr2, 3);
+    ImmutableListSequence<int> seq3(arr3, 3);
+    ASSERT_EQ(seq1 == seq2, true);
+    ASSERT_EQ(seq1 == seq3, false);
+}
+
+TEST(ImmutableListSequence_SubscriptOperator) {
+    int arr[] = {10, 20, 30};
+    ImmutableListSequence<int> seq(arr, 3);
+    ASSERT_EQ(seq[0], 10);
+    ASSERT_EQ(seq[2], 30);
+    const ImmutableListSequence<int> &constSeq = seq;
+    ASSERT_EQ(constSeq[1], 20);
+    ASSERT_THROWS(seq[5], IndexOutOfRange);
+}
+
+TEST(ImmutableListSequence_Iterator) {
+    int arr[] = {1, 2, 3};
+    ImmutableListSequence<int> seq(arr, 3);
+    int sum = 0;
+    auto it = seq.GetEnumerator();
+    while (it->MoveNext()) sum += it->GetCurrent();
+    delete it;
+    ASSERT_EQ(sum, 6);
+}
+
+// -------------------- MAIN --------------------
 int main() {
     std::cout << "=== Running tests for ArraySequence and ListSequence ===\n";
     std::cout << "\nResults: passed " << tests_passed << ", failed " << tests_failed << "\n";

@@ -80,6 +80,13 @@ Sequence<T> *ArraySequence<T>::Concat(const Sequence<T> *list) const {
     return concat_sequence;
 }
 
+// ---------- Iterators ----------
+
+template <class T>
+IEnumerator<T> *ArraySequence<T>::GetEnumerator() const {
+    return this->items.GetEnumerator();
+}
+
 // ---------- Internal Methods (modify in place) ----------
 
 template <class T>
@@ -110,80 +117,4 @@ ArraySequence<T> *ArraySequence<T>::InsertAtInternal(T item, int index) {
     }
     this->items.Set(index, item);
     return this;
-}
-
-// ---------- Iterators ----------
-
-template <class T>
-ArraySequence<T>::Enumerator::Enumerator(PointerType ptr) : current(ptr) {}
-
-template <class T>
-void ArraySequence<T>::Enumerator::Increment() {
-    ++current;
-}
-
-template <class T>
-void ArraySequence<T>::Enumerator::Decrement() {
-    --current;
-}
-
-template <class T>
-T &ArraySequence<T>::Enumerator::Dereference() const {
-    return *current;
-}
-
-template <class T>
-bool ArraySequence<T>::Enumerator::Equals(const IEnumerator<T> &other) const {
-    const Enumerator *other_dereferenced = dynamic_cast<const Enumerator*>(&other);
-    return other_dereferenced && (current == other_dereferenced->current);
-}
-
-template <class T>
-typename ArraySequence<T>::Enumerator *ArraySequence<T>::begin() {
-    if (GetLength() == 0) return new Enumerator(nullptr);
-    return new Enumerator(&(this->items[0]));
-}
-
-template <class T>
-typename ArraySequence<T>::Enumerator *ArraySequence<T>::end() {
-    if (GetLength() == 0) return new Enumerator(nullptr);
-    return new Enumerator(&(items[(GetLength() - 1) + 1]));
-}
-
-// ---------- Const Iterators ----------
-
-template <class T>
-ArraySequence<T>::ConstEnumerator::ConstEnumerator(PointerType ptr) : current(ptr) {}
-
-template <class T>
-void ArraySequence<T>::ConstEnumerator::Increment() { 
-    ++current; 
-}
-
-template <class T>
-void ArraySequence<T>::ConstEnumerator::Decrement() { 
-    --current; 
-}
-
-template <class T>
-const T &ArraySequence<T>::ConstEnumerator::Dereference() const { 
-    return *current; 
-}
-
-template <class T>
-bool ArraySequence<T>::ConstEnumerator::Equals(const IConstEnumerator<T>& other) const {
-    const ConstEnumerator* otherDerived = dynamic_cast<const ConstEnumerator*>(&other);
-    return otherDerived && (current == otherDerived->current);
-}
-
-template <class T>
-typename ArraySequence<T>::ConstEnumerator *ArraySequence<T>::begin() const {
-    if (GetLength() == 0) return new ConstEnumerator(nullptr);
-    return new ConstEnumerator(&items.Get(0));
-}
-
-template <class T>
-typename ArraySequence<T>::ConstEnumerator *ArraySequence<T>::end() const {
-    if (GetLength() == 0) return new ConstEnumerator(nullptr);
-    return new ConstEnumerator(&items.Get(GetLength() - 1) + 1);
 }

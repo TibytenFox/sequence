@@ -49,7 +49,7 @@ public:
     bool operator==(const ImmutableListSequence<T> &other) const;
     bool operator!=(const ImmutableListSequence<T> &other) const;
     T &operator[](int index);
-    const T &operator[](int index) const;
+    const T &operator[](int index) const override;
     ImmutableListSequence<T> operator+(const ImmutableListSequence<T> &other) const;
     ImmutableListSequence<T> &operator+=(const T &value);
     ImmutableListSequence<T> &operator+=(const ImmutableListSequence<T> &other);

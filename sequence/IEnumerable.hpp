@@ -8,10 +8,7 @@ class IEnumerable {
 public:
     virtual ~IEnumerable() {}
 
-    virtual IEnumerator<T> *begin() = 0;
-    virtual IEnumerator<T> *end() = 0;
-    virtual IConstEnumerator<T> *begin() const = 0;
-    virtual IConstEnumerator<T> *end() const = 0;
+    virtual IEnumerator<T> *GetEnumerator() const = 0;
 };
 
 #endif // IENUMERABLE_HPP

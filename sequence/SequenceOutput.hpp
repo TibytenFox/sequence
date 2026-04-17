@@ -9,17 +9,17 @@ std::ostream &operator<< (std::ostream &os, const Sequence<T> &seq) {
     os << '[';
     bool is_first = true;
 
-    IConstEnumerator<T> *en = seq.begin();
-    IConstEnumerator<T> *end = seq.end();
+    IEnumerator<T> *en = seq.GetEnumerator();
 
-    for (; *en != *end; ++(*en)) {
+    while (en->MoveNext()) {
         if (!is_first) {
             os << ", ";
         }
-        os << **en;
+        os << en->GetCurrent();
         is_first = false;
     }
     os << ']';
+    delete en;
     return os;
 }
 

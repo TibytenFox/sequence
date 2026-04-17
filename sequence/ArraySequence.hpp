@@ -9,39 +9,6 @@ class ArraySequence : public Sequence<T> {
 protected:
     DynamicArray<T> items;    // Using dynamic array
 
-    // Iterator for ArraySequence
-    class Enumerator : public IEnumerator<T> {
-    public:
-        using ValueType = T;
-        using PointerType = ValueType*;
-        using ReferenceType = ValueType&;
-
-        Enumerator(PointerType ptr);
-        
-        void Increment() override;
-        void Decrement() override;
-        T &Dereference() const override;
-        bool Equals(const IEnumerator<T> &other) const override;
-    private:
-        PointerType current;
-    };
-
-    // Const Iterator for ArraySequence
-    class ConstEnumerator : public IConstEnumerator<T> {
-    public:
-        using ValueType = T;
-        using PointerType = const ValueType*;
-        using ReferenceType = ValueType&;
-
-        ConstEnumerator(PointerType ptr);
-
-        void Increment() override;
-        void Decrement() override;
-        const T &Dereference() const override;
-        bool Equals(const IConstEnumerator<T> &other) const override;
-    private:
-        const T* current;
-    };
 public:
     // ---------- Constructors and Destructor ----------
     ArraySequence();
@@ -61,10 +28,7 @@ public:
     virtual Sequence<T> *Concat(const Sequence<T> *list) const override;
 
     // ---------- Iterators ----------
-    Enumerator *begin() override;
-    Enumerator *end() override;
-    ConstEnumerator *begin() const override;
-    ConstEnumerator *end() const override;
+    virtual IEnumerator<T> *GetEnumerator() const override;
 
 protected:
     virtual ArraySequence<T> *Instance() = 0;

@@ -19,8 +19,6 @@ public:
 		}
 	};
 
-	// TODO: разобраться, зачем нужен static здесь
-
 	template <class T>
 	static Sequence<Sequence<T>*> *Split(const Sequence<T> &seq, const T &element) {
 		Sequence<Sequence<T>*> *result = new MutableArraySequence<Sequence<T>*>();

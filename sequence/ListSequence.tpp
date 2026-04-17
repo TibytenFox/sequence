@@ -101,71 +101,8 @@ ListSequence<T> *ListSequence<T>::InsertAtInternal(T item, int index) {
 // ---------- Iterators ----------
 
 template <class T>
-ListSequence<T>::Enumerator::Enumerator(NodePointerType ptr) : current(ptr) {}
-
-template <class T>
-void ListSequence<T>::Enumerator::Increment() {
-    current = current->next;
+IEnumerator<T> *ListSequence<T>::GetEnumerator() const {
+    return this->items.GetEnumerator();
 }
 
-template <class T>
-void ListSequence<T>::Enumerator::Decrement() {
-    current = current->prev;
-}
 
-template <class T>
-T &ListSequence<T>::Enumerator::Dereference() const {
-    return current->value;
-}
-
-template <class T>
-bool ListSequence<T>::Enumerator::Equals(const IEnumerator<T> &other) const {
-    const Enumerator *other_dereferenced = dynamic_cast<const Enumerator*>(&other);
-    return other_dereferenced && (current == other_dereferenced->current);
-}
-
-template <class T>
-typename ListSequence<T>::Enumerator *ListSequence<T>::begin() {
-    return new Enumerator(items.GetHead());
-}
-
-template <class T>
-typename ListSequence<T>::Enumerator*ListSequence<T>::end() {
-    return new Enumerator(items.GetTail() == nullptr ? nullptr : items.GetTail()->next);
-}
-
-// ---------- Const Iterators ----------
-
-template <class T>
-ListSequence<T>::ConstEnumerator::ConstEnumerator(NodePointerType ptr) : current(ptr) {}
-
-template <class T>
-void ListSequence<T>::ConstEnumerator::Increment() { 
-    current = current->next; 
-}
-
-template <class T>
-void ListSequence<T>::ConstEnumerator::Decrement() { 
-    current = current->prev; 
-}
-
-template <class T>
-const T &ListSequence<T>::ConstEnumerator::Dereference() const { 
-    return current->value; 
-}
-
-template <class T>
-bool ListSequence<T>::ConstEnumerator::Equals(const IConstEnumerator<T> &other) const {
-    const ConstEnumerator* otherDerived = dynamic_cast<const ConstEnumerator*>(&other);
-    return otherDerived && current == otherDerived->current;
-}
-
-template <class T>
-typename ListSequence<T>::ConstEnumerator *ListSequence<T>::begin() const {
-    return new ConstEnumerator(items.GetHead());
-}
-
-template <class T>
-typename ListSequence<T>::ConstEnumerator *ListSequence<T>::end() const {
-    return new ConstEnumerator(items.GetTail() == nullptr ? nullptr : items.GetTail()->next);
-}

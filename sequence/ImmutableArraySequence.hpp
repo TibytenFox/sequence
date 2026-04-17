@@ -49,16 +49,16 @@ public:
     bool operator==(const ImmutableArraySequence<T> &other) const;
     bool operator!=(const ImmutableArraySequence<T> &other) const;
     T &operator[](int index);
-    const T &operator[](int index) const;
+    const T &operator[](int index) const override;
     ImmutableArraySequence<T> operator+(const ImmutableArraySequence<T> &other) const;
     ImmutableArraySequence<T> &operator+=(const T &value);
     ImmutableArraySequence<T> &operator+=(const ImmutableArraySequence<T> &value);
 
-    virtual Sequence<T> *CreateEmpty() const {
+    virtual Sequence<T> *CreateEmpty() const override {
         return new ImmutableArraySequence<T>();
     }
 
-    virtual Sequence<T> *Clone() const {
+    virtual Sequence<T> *Clone() const override {
         return new ImmutableArraySequence<T>(*this);
     }
 };

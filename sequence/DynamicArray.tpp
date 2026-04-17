@@ -60,6 +60,11 @@ void DynamicArray<T>::Resize(int new_size) {
     this->size = new_size;
 }
 
+template <class T>
+IEnumerator<T> *DynamicArray<T>::GetEnumerator() const {
+    return new Enumerator(this);
+}
+
 // ---------- Operators ----------
 
 template <class T>

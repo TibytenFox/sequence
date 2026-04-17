@@ -74,6 +74,11 @@ LinkedList<T> *LinkedList<T>::GetSubList(int start_index, int end_index) const {
 template <class T>
 int LinkedList<T>::GetLength() const { return size; }
 
+template <class T>
+IEnumerator<T> *LinkedList<T>::GetEnumerator() const {
+    return new Enumerator(this->head);
+}
+
 // ---------- Modifiers ----------
 
 template <class T>
