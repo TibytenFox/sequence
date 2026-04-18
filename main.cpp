@@ -100,8 +100,8 @@ void arraySequenceMenu() {
                 try {
                     seq->InsertAt(val, idx);
                     printSequence(*seq, "After insert");
-                } catch (const std::exception &e) {
-                    std::cout << "Error: " << e.what() << std::endl;
+                } catch (const Exception &e) {
+                    std::cout << "Error: " << e.GetMessage() << std::endl;
                 }
                 break;
             }
@@ -110,8 +110,8 @@ void arraySequenceMenu() {
                 int idx = readInt("Index: ");
                 try {
                     std::cout << "Element at index " << idx << " = " << seq->Get(idx) << std::endl;
-                } catch (const std::exception &e) {
-                    std::cout << "Error: " << e.what() << std::endl;
+                } catch (const Exception &e) {
+                    std::cout << "Error: " << e.GetMessage() << std::endl;
                 }
                 break;
             }
@@ -128,8 +128,8 @@ void arraySequenceMenu() {
                     Sequence<int> *sub = seq->GetSubsequence(start, end);
                     printSequence(*sub, "Subsequence");
                     delete sub;
-                } catch (const std::exception &e) {
-                    std::cout << "Error: " << e.what() << std::endl;
+                } catch (const Exception &e) {
+                    std::cout << "Error: " << e.GetMessage() << std::endl;
                 }
                 break;
             }
@@ -250,8 +250,8 @@ void listSequenceMenu() {
                 try {
                     seq->InsertAt(val, idx);
                     printSequence(*seq, "After insert");
-                } catch (const std::exception &e) {
-                    std::cout << "Error: " << e.what() << std::endl;
+                } catch (const Exception &e) {
+                    std::cout << "Error: " << e.GetMessage() << std::endl;
                 }
                 break;
             }
@@ -260,8 +260,8 @@ void listSequenceMenu() {
                 int idx = readInt("Index: ");
                 try {
                     std::cout << "Element at index " << idx << " = " << seq->Get(idx) << std::endl;
-                } catch (const std::exception &e) {
-                    std::cout << "Error: " << e.what() << std::endl;
+                } catch (const Exception &e) {
+                    std::cout << "Error: " << e.GetMessage() << std::endl;
                 }
                 break;
             }
@@ -278,8 +278,8 @@ void listSequenceMenu() {
                     Sequence<int> *sub = seq->GetSubsequence(start, end);
                     printSequence(*sub, "Subsequence");
                     delete sub;
-                } catch (const std::exception &e) {
-                    std::cout << "Error: " << e.what() << std::endl;
+                } catch (const Exception &e) {
+                    std::cout << "Error: " << e.GetMessage() << std::endl;
                 }
                 break;
             }

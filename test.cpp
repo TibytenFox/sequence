@@ -876,7 +876,6 @@ TEST(ImmutableListSequence_Iterator) {
 
 // -------------------- MAIN --------------------
 int main() {
-    std::cout << "=== Running tests for ArraySequence and ListSequence ===\n";
     std::cout << "\nResults: passed " << tests_passed << ", failed " << tests_failed << "\n";
     return tests_failed == 0 ? 0 : 1;
 }

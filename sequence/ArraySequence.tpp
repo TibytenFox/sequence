@@ -66,6 +66,7 @@ Sequence<T> *ArraySequence<T>::InsertAt(T item, int index) {
 // Returns new heap-allocated sequence
 template <class T>
 Sequence<T> *ArraySequence<T>::Concat(const Sequence<T> *list) const {
+    if (!list) throw EmptyCollectionError("Cancat: empty collection");
     ISequenceBuilder<T> *builder = this->CreateBuilder();
 
     for (int i = 0; i < this->GetLength(); i++) {

@@ -9,23 +9,6 @@ class ListSequence : public Sequence<T> {
 protected:
     LinkedList<T> items;   // Linked list
 
-    // Iterator for ListSequence
-    class Enumerator : public IEnumerator<T> {
-    public:
-        using ValueType = T;
-        using PointerType = ValueType*;
-        using NodePointerType = typename LinkedList<T>::Node*;
-        using ReferenceType = ValueType&;
-
-        Enumerator(NodePointerType ptr);
-
-        void Increment() override;
-        void Decrement() override;
-        T &Dereference() const override;
-        bool Equals(const IEnumerator<T> &other) const override;
-    private:
-        NodePointerType current;
-    };
 public:
     // ---------- Constructors and Destructor ----------
     ListSequence();
