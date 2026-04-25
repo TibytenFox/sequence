@@ -48,6 +48,7 @@ public:
     LinkedList();                              // Empty array
     LinkedList(T *items, int count);           // Copy from C-array
     LinkedList(const LinkedList<T> &list);     // Copy constructor
+    LinkedList(LinkedList<T> &&other) noexcept; // Move constructor
     ~LinkedList();                             // Destructor
 
     // ---------- Accessors ----------
@@ -70,6 +71,7 @@ public:
 
     // ---------- Operators ----------
     LinkedList<T> &operator=(const LinkedList<T> &other);
+    LinkedList<T> &operator=(LinkedList<T> &&other) noexcept;
 };
 
 #include "LinkedList.tpp"

@@ -3,12 +3,11 @@
 // Map-Reduce
 
 template <class T>
-template <class T2>
-Sequence<T2> *Sequence<T>::Map(T2 (*func)(T)) const {
+Sequence<T> *Sequence<T>::Map(T (*func)(T)) const {
     ISequenceBuilder<T> *builder = this->CreateBuilder();
     IEnumerator<T> *en = this->GetEnumerator();
 
-        while (en->MoveNext()) {
+    while (en->MoveNext()) {
         builder->Append(func(en->GetCurrent()));
     }
 
@@ -23,7 +22,7 @@ Sequence<T> *Sequence<T>::Where(bool (*predicate)(T)) const {
     ISequenceBuilder<T> *builder = this->CreateBuilder();
     IEnumerator<T> *en = this->GetEnumerator();
 
-        while (en->MoveNext()) {
+    while (en->MoveNext()) {
         if (predicate(en->GetCurrent())) {
             builder->Append(en->GetCurrent());
         }

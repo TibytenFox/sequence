@@ -42,10 +42,13 @@ public:
 
     MutableArraySequence() : ArraySequence<T>() {}
     MutableArraySequence(T *items, int count) : ArraySequence<T>(items, count) {}
-    MutableArraySequence(const ArraySequence<T> &list) : ArraySequence<T> (list) {}
+    MutableArraySequence(const ArraySequence<T> &other) : ArraySequence<T> (other) {}
+    MutableArraySequence(const MutableArraySequence<T> &other) : ArraySequence<T> (other) {}
+    MutableArraySequence(MutableArraySequence<T> &&other) noexcept = default;
     ~MutableArraySequence() {}
 
     MutableArraySequence<T> &operator=(const MutableArraySequence<T> &other);
+    MutableArraySequence<T> &operator=(MutableArraySequence<T> &&other) noexcept = default;
     bool operator==(const MutableArraySequence<T> &other) const;
     bool operator!=(const MutableArraySequence<T> &other) const;
     T &operator[](int index);

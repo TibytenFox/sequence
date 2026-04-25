@@ -137,7 +137,7 @@ TEST(ArraySequence_Concat) {
 TEST(ArraySequence_Map) {
     MutableArraySequence<int> seq;
     seq.Append(1); seq.Append(2); seq.Append(3);
-    Sequence<int> *squares = seq.Map<int>([](int x) { return x * x; });
+    Sequence<int> *squares = seq.Map([](int x) { return x * x; });
     ASSERT_EQ(squares->GetLength(), 3);
     ASSERT_EQ(squares->Get(0), 1);
     ASSERT_EQ(squares->Get(1), 4);
@@ -311,7 +311,7 @@ TEST(ListSequence_Concat) {
 TEST(ListSequence_Map) {
     MutableListSequence<int> seq;
     seq.Append(1); seq.Append(2); seq.Append(3);
-    Sequence<int> *squares = seq.Map<int>([](int x) { return x * x; });
+    Sequence<int> *squares = seq.Map([](int x) { return x * x; });
     ASSERT_EQ(squares->GetLength(), 3);
     ASSERT_EQ(squares->Get(0), 1);
     ASSERT_EQ(squares->Get(1), 4);
@@ -710,7 +710,7 @@ TEST(ImmutableArraySequence_Concat) {
 TEST(ImmutableArraySequence_Map) {
     int arr[] = {1, 2, 3};
     ImmutableArraySequence<int> seq(arr, 3);
-    Sequence<int> *squares = seq.Map<int>([](int x) { return x * x; });
+    Sequence<int> *squares = seq.Map([](int x) { return x * x; });
     ASSERT_EQ(squares->GetLength(), 3);
     ASSERT_EQ(squares->Get(0), 1);
     ASSERT_EQ(squares->Get(1), 4);
@@ -818,7 +818,7 @@ TEST(ImmutableListSequence_Concat) {
 TEST(ImmutableListSequence_Map) {
     int arr[] = {1, 2, 3};
     ImmutableListSequence<int> seq(arr, 3);
-    Sequence<int> *squares = seq.Map<int>([](int x) { return x * x; });
+    Sequence<int> *squares = seq.Map([](int x) { return x * x; });
     ASSERT_EQ(squares->GetLength(), 3);
     ASSERT_EQ(squares->Get(0), 1);
     ASSERT_EQ(squares->Get(1), 4);

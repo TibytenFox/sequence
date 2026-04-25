@@ -14,6 +14,8 @@ public:
     ArraySequence();
     ArraySequence(T *items, int count);
     ArraySequence(const ArraySequence<T> &list);
+    ArraySequence(ArraySequence<T> &&other) noexcept = default;
+    ArraySequence<T> &operator=(ArraySequence<T> &&other) noexcept = default;
     ~ArraySequence();
 
     // ---------- Sequence overrides ----------

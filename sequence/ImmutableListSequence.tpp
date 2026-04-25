@@ -23,17 +23,6 @@ bool ImmutableListSequence<T>::operator!=(const ImmutableListSequence<T> &other)
 }
 
 template <class T>
-T &ImmutableListSequence<T>::operator[](int index) {
-    if (index < 0 || index >= this->GetLength()) throw IndexOutOfRange("Operator[]: Index out of range");
-    typename LinkedList<T>::Node *current = this->items.GetHead();
-    for (int i = 0; i < index; i++) {
-        current = current->next;
-    }
-    T &value = current->value;
-    return value;
-}
-
-template <class T>
 const T &ImmutableListSequence<T>::operator[](int index) const {
     if (index < 0 || index >= this->GetLength()) throw IndexOutOfRange("Operator[]: Index out of range");
     IEnumerator<T> *current = this->GetEnumerator();

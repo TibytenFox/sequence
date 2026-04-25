@@ -34,8 +34,7 @@ public:
     virtual Sequence<T> *Concat(const Sequence<T> *list) const = 0;
 
     // ---------- Map-Reduce operations ----------
-    template <class T2>
-    Sequence<T2> *Map(T2 (*func)(T)) const;
+    virtual Sequence<T> *Map(T (*func)(T)) const;
 
     virtual Sequence<T> *Where(bool (*predicate)(T)) const;
 

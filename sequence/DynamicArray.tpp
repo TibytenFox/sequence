@@ -23,6 +23,24 @@ DynamicArray<T>::DynamicArray(const DynamicArray &other) : DynamicArray(other.si
 }
 
 template <class T>
+DynamicArray<T>::DynamicArray(DynamicArray &&other) noexcept : data(other.data), size(other.size) {
+    other.data = nullptr;
+    other.size = 0;
+}
+
+template <class T>
+DynamicArray<T> &DynamicArray<T>::operator=(DynamicArray<T> &&other) noexcept {
+    if (this != &other) {
+        delete[] this->data;
+        this->data = other.data;
+        this->size = other.size;
+        other.data = nullptr;
+        other.size = 0;
+    }
+    return *this;
+}
+
+template <class T>
 DynamicArray<T>::~DynamicArray() { delete[] this->data; }
 
 // ---------- Getters and Setters ----------
@@ -51,10 +69,8 @@ template <class T>
 void DynamicArray<T>::Resize(int new_size) {
     if (new_size < 0) throw IndexOutOfRange("Resize(): Size must be positive");
     T *new_data = new T[new_size];
-    // Copy min(old size, new size) elements
-    for (int i = 0; i < ((this->size < new_size) ? this->size : new_size); i++) {
-        new_data[i] = this->data[i];
-    }
+    const int count = (this->size < new_size) ? this->size : new_size;
+    std::copy(this->data, this->data + count, new_data);
     delete[] this->data;
     this->data = new_data;
     this->size = new_size;

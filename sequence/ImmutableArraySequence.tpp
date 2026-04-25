@@ -23,11 +23,6 @@ bool ImmutableArraySequence<T>::operator!=(const ImmutableArraySequence<T> &othe
 }
 
 template <class T>
-T &ImmutableArraySequence<T>::operator[](int index) {
-	return this->items[index];
-}
-
-template <class T>
 const T &ImmutableArraySequence<T>::operator[](int index) const {
 	return this->items.Get(index);
 }
@@ -51,10 +46,8 @@ ImmutableArraySequence<T> &ImmutableArraySequence<T>::operator+=(const T &value)
 
 template <class T>
 ImmutableArraySequence<T> &ImmutableArraySequence<T>::operator+=(const ImmutableArraySequence<T> &other) {
-	ImmutableArraySequence<T> result(*this);
 	for (int i = 0; i < other.GetLength(); ++i) {
-		result.AppendInternal(other.Get(i));
+		this->AppendInternal(other.Get(i));
 	}
-	*this = result;
 	return *this;
 }

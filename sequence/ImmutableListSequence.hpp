@@ -42,13 +42,15 @@ public:
 
     ImmutableListSequence() : ListSequence<T>() {}
     ImmutableListSequence(T *items, int count) : ListSequence<T>(items, count) {}
-    ImmutableListSequence(const ListSequence<T> &list) : ListSequence<T>(list) {}
+    ImmutableListSequence(const ListSequence<T> &other) : ListSequence<T>(other) {}
+    ImmutableListSequence(const ImmutableListSequence<T> &other) : ListSequence<T>(other) {}
+    ImmutableListSequence(ImmutableListSequence<T> &&other) noexcept = default;
     ~ImmutableListSequence() {}
 
     ImmutableListSequence<T> &operator=(const ImmutableListSequence<T> &other);
+    ImmutableListSequence<T> &operator=(ImmutableListSequence<T> &&other) noexcept = default;
     bool operator==(const ImmutableListSequence<T> &other) const;
     bool operator!=(const ImmutableListSequence<T> &other) const;
-    T &operator[](int index);
     const T &operator[](int index) const override;
     ImmutableListSequence<T> operator+(const ImmutableListSequence<T> &other) const;
     ImmutableListSequence<T> &operator+=(const T &value);

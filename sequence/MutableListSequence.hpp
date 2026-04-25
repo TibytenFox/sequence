@@ -42,10 +42,13 @@ public:
     
     MutableListSequence() : ListSequence<T>() {}
     MutableListSequence(T *items, int count) : ListSequence<T>(items, count) {}
-    MutableListSequence(const ListSequence<T> &list) : ListSequence<T>(list) {}
+    MutableListSequence(const ListSequence<T> &other) : ListSequence<T>(other) {}
+    MutableListSequence(const MutableListSequence<T> &other) : ListSequence<T>(other) {}
+    MutableListSequence(MutableListSequence<T> &&other) noexcept = default;
     ~MutableListSequence() {}
 
     MutableListSequence<T> &operator=(const MutableListSequence<T> &other);
+    MutableListSequence<T> &operator=(MutableListSequence<T> &&other) noexcept = default;
     bool operator==(const MutableListSequence<T> &other) const;
     bool operator!=(const MutableListSequence<T> &other) const;
     T &operator[](int index);

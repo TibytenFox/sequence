@@ -14,6 +14,8 @@ public:
     ListSequence();
     ListSequence(T *items, int count);
     ListSequence(const ListSequence<T> &list);
+    ListSequence(ListSequence<T> &&other) noexcept = default;
+    ListSequence<T> &operator=(ListSequence<T> &&other) noexcept = default;
     ~ListSequence();
 
     // ---------- Sequence overrides ----------

@@ -42,13 +42,15 @@ public:
 
     ImmutableArraySequence() : ArraySequence<T>() {}
     ImmutableArraySequence(T *items, int count) : ArraySequence<T>(items, count) {}
-    ImmutableArraySequence(const ArraySequence<T> &list) : ArraySequence<T>(list) {}
+    ImmutableArraySequence(const ArraySequence<T> &other) : ArraySequence<T>(other) {}
+    ImmutableArraySequence(const ImmutableArraySequence<T> &other) : ArraySequence<T>(other) {}
+    ImmutableArraySequence(ImmutableArraySequence<T> &&other) noexcept = default;
     ~ImmutableArraySequence() {}
 
     ImmutableArraySequence<T> &operator=(const ImmutableArraySequence<T> &other);
+    ImmutableArraySequence<T> &operator=(ImmutableArraySequence<T> &&other) noexcept = default;
     bool operator==(const ImmutableArraySequence<T> &other) const;
     bool operator!=(const ImmutableArraySequence<T> &other) const;
-    T &operator[](int index);
     const T &operator[](int index) const override;
     ImmutableArraySequence<T> operator+(const ImmutableArraySequence<T> &other) const;
     ImmutableArraySequence<T> &operator+=(const T &value);

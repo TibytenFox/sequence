@@ -23,6 +23,32 @@ LinkedList<T>::LinkedList(const LinkedList<T> &list) : LinkedList() {
 }
 
 template <class T>
+LinkedList<T>::LinkedList(LinkedList<T> &&other) noexcept : size(other.size), head(other.head), tail(other.tail) {
+    other.size = 0;
+    other.head = nullptr;
+    other.tail = nullptr;
+}
+
+template <class T>
+LinkedList<T> &LinkedList<T>::operator=(LinkedList<T> &&other) noexcept {
+    if (this != &other) {
+        Node *current = head;
+        while (current != nullptr) {
+            Node *next = current->next;
+            delete current;
+            current = next;
+        }
+        head = other.head;
+        tail = other.tail;
+        size = other.size;
+        other.head = nullptr;
+        other.tail = nullptr;
+        other.size = 0;
+    }
+    return *this;
+}
+
+template <class T>
 LinkedList<T>::~LinkedList() {
     Node *current = head;
     while (current != nullptr) {

@@ -38,6 +38,7 @@ public:
     explicit DynamicArray(int s);                // Array of size s (default-initialized)
     DynamicArray(T *items, int count);           // Copy from C-array
     DynamicArray(const DynamicArray &other);     // Copy constructor
+    DynamicArray(DynamicArray &&other) noexcept; // Move constructor
     ~DynamicArray();                             // Destructor
 
     // ---------- Accessors ----------
@@ -49,6 +50,7 @@ public:
 
     // ---------- Operators ----------
     DynamicArray<T> &operator=(const DynamicArray<T> &other);
+    DynamicArray<T> &operator=(DynamicArray<T> &&other) noexcept;
     T &operator[](int index);
 
 };
