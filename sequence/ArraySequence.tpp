@@ -99,8 +99,6 @@ IEnumerator<T> *ArraySequence<T>::GetEnumerator() const {
     return this->items.GetEnumerator();
 }
 
-// TODO: добавить тесты
-
 // ---------- Internal Methods (modify in place) ----------
 
 template <class T>
