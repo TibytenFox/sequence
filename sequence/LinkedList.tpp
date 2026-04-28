@@ -149,10 +149,9 @@ void LinkedList<T>::InsertAt(T item, int index) {
 }
 
 template <class T>
-LinkedList<T> *LinkedList<T>::Concat(LinkedList<T> *list) {
-    if (!list) throw EmptyCollectionError("Concat: empty collectoin");
+LinkedList<T> *LinkedList<T>::Concat(const LinkedList<T> &list) {
     LinkedList<T> *new_list = new LinkedList<T>(*this);
-    Node *current = list->head;
+    Node *current = list.head;
     while (current != nullptr) {
         new_list->Append(current->value);
         current = current->next;

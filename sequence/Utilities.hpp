@@ -4,8 +4,7 @@
 #include "Sequence.hpp"
 #include "MutableArraySequence.hpp"
 
-class SequenceUtilities {
-public:
+namespace SequenceUtilities {
 	template <class T1, class T2>
 	struct Pair {
 		T1 first;
@@ -23,27 +22,30 @@ public:
 	static Sequence<Sequence<T>*> *Split(const Sequence<T> &seq, const T &element) {
 		Sequence<Sequence<T>*> *result = new MutableArraySequence<Sequence<T>*>();
 		Sequence<T> *current = new MutableArraySequence<T>();
+		IEnumerator<T> *en = seq.GetEnumerator();
 
-		for (int i = 0; i < seq.GetLength(); i++) {
-			if (seq[i] == element) {
+		while (en->MoveNext()) {
+			if (en->GetCurrent() == element) {
 				result->Append(current);
 				current = new MutableArraySequence<T>();
 			} else {
-				current->Append(seq[i]);
+				current->Append(en->GetCurrent());
 			}
 		}
 		result->Append(current);
+
+		delete en;
 		return result;
 	}
 
 	template <class T1, class T2>
 	static Sequence<Pair<T1, T2>> *Zip(const Sequence<T1> &seq1, const Sequence<T2> &seq2) {
 		Sequence<Pair<T1, T2>> *result = new MutableArraySequence<Pair<T1, T2>>();
+		IEnumerator<T1> *en1 = seq1.GetEnumerator();
+		IEnumerator<T2> *en2 = seq2.GetEnumerator();
 
-		int length = (seq1.GetLength() < seq2.GetLength()) ? seq1.GetLength() : seq2.GetLength();
-
-		for (int i = 0; i < length; i++) {
-			result->Append(Pair<T1, T2>(seq1[i], seq2[i]));
+		while (en1->MoveNext() && en2->MoveNext()) {
+			result->Append(Pair<T1, T2>(en1->GetCurrent(), en2->GetCurrent()));
 		}
 
 		return result;
@@ -53,10 +55,11 @@ public:
 	static Pair<Sequence<T1>*, Sequence<T2>*> Unzip(const Sequence<Pair<T1, T2>> &seq) {
 		Sequence<T1> *seq1 = new MutableArraySequence<T1>();
 		Sequence<T2> *seq2 = new MutableArraySequence<T2>();
+		IEnumerator<Pair<T1, T2>> *en = seq.GetEnumerator();
 
-		for (int i = 0; i < seq.GetLength(); i++) {
-			seq1->Append(seq[i].first);
-			seq2->Append(seq[i].second);
+		while (en->MoveNext()) {
+			seq1->Append(en->GetCurrent().first);
+			seq2->Append(en->GetCurrent().second);
 		}
 
 		return Pair<Sequence<T1>*, Sequence<T2>*>(seq1, seq2);

@@ -63,7 +63,7 @@ public:
     void Append(T item);                       // Add element at the end
     void Prepend(T item);                      // Add element at the beginning
     void InsertAt(T item, int index);          // Insert at position
-    LinkedList<T> *Concat(LinkedList<T> *list); // Returns new heap-allocated list
+    LinkedList<T> *Concat(const LinkedList<T> &list); // Returns new heap-allocated list
 
     // ---------- Iteration support ----------
     Node *GetHead() const;                     // Raw pointer to first node (nullptr if empty)

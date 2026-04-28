@@ -3,13 +3,16 @@
 // ---------- Constructors and Destructor ----------
 
 template <class T>
-ArraySequence<T>::ArraySequence() : items() {}
+ArraySequence<T>::ArraySequence() : size(0), items(0) {}
 
 template <class T>
-ArraySequence<T>::ArraySequence(T *items, int count) : items(items, count) {}
+ArraySequence<T>::ArraySequence(int count) : size(0), items(count) {}
 
 template <class T>
-ArraySequence<T>::ArraySequence(const ArraySequence<T> &list) : items(list.items) {}
+ArraySequence<T>::ArraySequence(T *items, int count) : size(count), items(items, count) {}
+
+template <class T>
+ArraySequence<T>::ArraySequence(const ArraySequence<T> &list) : size(list.GetLength()), items(list.items) {}
 
 template <class T>
 ArraySequence<T>::~ArraySequence() {}
@@ -17,16 +20,25 @@ ArraySequence<T>::~ArraySequence() {}
 // ---------- Sequence Interface Implementation ----------
 
 template <class T>
-const T &ArraySequence<T>::GetFirst() const { return this->items.Get(0); }
+const T &ArraySequence<T>::GetFirst() const { 
+    if (size == 0) throw EmptyCollectionError("GetFirst(): Empty collection");
+    return this->items.Get(0); 
+}
 
 template <class T>
-const T &ArraySequence<T>::GetLast() const { return this->items.Get(items.GetSize() - 1); }
+const T &ArraySequence<T>::GetLast() const { 
+    if (size == 0) throw EmptyCollectionError("GetFirst(): Empty collection");
+    return this->items.Get(this->size - 1); 
+}
 
 template <class T>
-const T &ArraySequence<T>::Get(int index) const { return this->items.Get(index); }
+const T &ArraySequence<T>::Get(int index) const { 
+    if (index < 0 || index >= size) throw IndexOutOfRange("Get(): Index out of range");
+    return this->items.Get(index); 
+}
 
 template <class T>
-int ArraySequence<T>::GetLength() const { return this->items.GetSize(); }
+int ArraySequence<T>::GetLength() const { return this->size; }
 
 // Caller is responsible for deleting the returned pointer
 template <class T>
@@ -65,15 +77,14 @@ Sequence<T> *ArraySequence<T>::InsertAt(T item, int index) {
 
 // Returns new heap-allocated sequence
 template <class T>
-Sequence<T> *ArraySequence<T>::Concat(const Sequence<T> *list) const {
-    if (!list) throw EmptyCollectionError("Cancat: empty collection");
+Sequence<T> *ArraySequence<T>::Concat(const Sequence<T> &list) const {
     ISequenceBuilder<T> *builder = this->CreateBuilder();
 
     for (int i = 0; i < this->GetLength(); i++) {
         builder->Append(this->Get(i));
     }
-    for (int i = 0; i < list->GetLength(); i++) {
-       builder->Append(list->Get(i));
+    for (int i = 0; i < list.GetLength(); i++) {
+       builder->Append(list.Get(i));
     }
 
     Sequence<T> *concat_sequence = builder->Build();
@@ -88,19 +99,23 @@ IEnumerator<T> *ArraySequence<T>::GetEnumerator() const {
     return this->items.GetEnumerator();
 }
 
+// TODO: добавить тесты
+
 // ---------- Internal Methods (modify in place) ----------
 
 template <class T>
 ArraySequence<T> *ArraySequence<T>::AppendInternal(T item) {
-    this->items.Resize(this->items.GetSize() + 1);
-    this->items.Set(this->items.GetSize() - 1, item);
+    if (this->items.GetSize() <= this->size) this->items.Resize(this->size + 1);
+    this->size++;
+    this->items.Set(this->size - 1, item);
     return this;
 }
 
 template <class T>
 ArraySequence<T> *ArraySequence<T>::PrependInternal(T item) {
-    this->items.Resize(this->items.GetSize() + 1);
-    for (int i = this->items.GetSize() - 1; i > 0; i--) {
+    if (this->items.GetSize() <= this->size) this->items.Resize(this->size + 1);
+    this->size++;
+    for (int i = this->size - 1; i > 0; i--) {
         this->items.Set(i, this->items.Get(i - 1));
     }
     this->items.Set(0, item);
@@ -112,8 +127,9 @@ ArraySequence<T> *ArraySequence<T>::InsertAtInternal(T item, int index) {
     if (index < 0 || index > this->items.GetSize()) {
         throw IndexOutOfRange("InsertAt: invalid index");
     }
-    this->items.Resize(this->items.GetSize() + 1);
-    for (int i = this->items.GetSize() - 1; i > index; i--) {
+    if (this->items.GetSize() <= this->size) this->items.Resize(this->size + 1);
+    this->size++;
+    for (int i = this->size - 1; i > index; i--) {
         this->items.Set(i, this->items.Get(i - 1));
     }
     this->items.Set(index, item);

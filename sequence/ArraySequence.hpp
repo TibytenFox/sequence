@@ -7,11 +7,13 @@
 template <class T>
 class ArraySequence : public Sequence<T> {
 protected:
+    int size; // items.size - capacity (items.size >= size)
     DynamicArray<T> items;    // Using dynamic array
 
 public:
     // ---------- Constructors and Destructor ----------
     ArraySequence();
+    explicit ArraySequence(int count);
     ArraySequence(T *items, int count);
     ArraySequence(const ArraySequence<T> &list);
     ArraySequence(ArraySequence<T> &&other) noexcept = default;
@@ -27,7 +29,7 @@ public:
     virtual Sequence<T> *Append(T item) override;
     virtual Sequence<T> *Prepend(T item) override;
     virtual Sequence<T> *InsertAt(T item, int index) override;
-    virtual Sequence<T> *Concat(const Sequence<T> *list) const override;
+    virtual Sequence<T> *Concat(const Sequence<T> &list) const override;
 
     // ---------- Iterators ----------
     virtual IEnumerator<T> *GetEnumerator() const override;

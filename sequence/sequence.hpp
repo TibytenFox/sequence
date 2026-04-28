@@ -31,7 +31,7 @@ public:
     virtual Sequence<T> *GetSubsequence(int start_index, int end_ndex) const = 0;
 
     // ---------- Operations ----------
-    virtual Sequence<T> *Concat(const Sequence<T> *list) const = 0;
+    virtual Sequence<T> *Concat(const Sequence<T> &list) const = 0;
 
     // ---------- Map-Reduce operations ----------
     virtual Sequence<T> *Map(T (*func)(T)) const;

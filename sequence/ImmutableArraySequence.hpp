@@ -19,13 +19,11 @@ public:
         }
         
         virtual ~Builder() {
-            if (this->seq) {
-                delete this->seq;
-            }
+            delete this->seq;
         }
 
         virtual ISequenceBuilder<T> *Append(const T &item) override {
-            this->seq->AppendInternal(item);
+            if (seq) this->seq->AppendInternal(item);
             return this;
         }
 

@@ -137,7 +137,7 @@ void arraySequenceMenu() {
                 if (!seq) { std::cout << "No sequence. Create one first.\n"; break; }
                 std::cout << "Create another sequence to concatenate:\n";
                 MutableArraySequence<int> *other = createSequenceFromUser<MutableArraySequence<int>>();
-                Sequence<int> *concat = seq->Concat(other);
+                Sequence<int> *concat = seq->Concat(*other);
                 printSequence(*concat, "Concatenated sequence");
                 delete concat;
                 delete other;
@@ -287,7 +287,7 @@ void listSequenceMenu() {
                 if (!seq) { std::cout << "No sequence. Create one first.\n"; break; }
                 std::cout << "Create another sequence to concatenate:\n";
                 MutableListSequence<int> *other = createSequenceFromUser<MutableListSequence<int>>();
-                Sequence<int> *concat = seq->Concat(other);
+                Sequence<int> *concat = seq->Concat(*other);
                 printSequence(*concat, "Concatenated sequence");
                 delete concat;
                 delete other;

@@ -3,6 +3,8 @@
 #include "sequence/MutableListSequence.hpp"
 #include "sequence/ImmutableArraySequence.hpp"
 #include "sequence/ImmutableListSequence.hpp"
+#include "sequence/DynamicArray.hpp"
+#include "sequence/LinkedList.hpp"
 #include "sequence/Exceptions.hpp"
 #include "sequence/Utilities.hpp"
 
@@ -126,7 +128,7 @@ TEST(ArraySequence_Concat) {
     int b[] = {3, 4};
     MutableArraySequence<int> seqA(a, 2);
     MutableArraySequence<int> seqB(b, 2);
-    Sequence<int> *concat = seqA.Concat(&seqB);
+    Sequence<int> *concat = seqA.Concat(seqB);
     ASSERT_EQ(concat->GetLength(), 4);
     ASSERT_EQ(concat->Get(0), 1);
     ASSERT_EQ(concat->Get(2), 3);
@@ -301,7 +303,7 @@ TEST(ListSequence_Concat) {
     int b[] = {3, 4};
     MutableListSequence<int> seqA(a, 2);
     MutableListSequence<int> seqB(b, 2);
-    Sequence<int> *concat = seqA.Concat(&seqB);
+    Sequence<int> *concat = seqA.Concat(seqB);
     ASSERT_EQ(concat->GetLength(), 4);
     ASSERT_EQ(concat->Get(0), 1);
     ASSERT_EQ(concat->Get(2), 3);
@@ -398,6 +400,188 @@ TEST(ListSequence_OperatorPlusEqual) {
     seq += other;
     ASSERT_EQ(seq.GetLength(), 4);
     ASSERT_EQ(seq.Get(2), 3);
+}
+
+// -------------------- Tests for DynamicArray --------------------
+
+TEST(DynamicArray_DefaultConstructor) {
+    DynamicArray<int> arr;
+    ASSERT_EQ(arr.GetSize(), 0);
+}
+
+TEST(DynamicArray_ConstructorWithSize) {
+    DynamicArray<int> arr(5);
+    ASSERT_EQ(arr.GetSize(), 5);
+}
+
+TEST(DynamicArray_ConstructorFromArray) {
+    int data[] = {1, 2, 3};
+    DynamicArray<int> arr(data, 3);
+    ASSERT_EQ(arr.GetSize(), 3);
+    ASSERT_EQ(arr.Get(0), 1);
+    ASSERT_EQ(arr.Get(2), 3);
+}
+
+TEST(DynamicArray_CopyConstructor) {
+    int data[] = {4, 5, 6};
+    DynamicArray<int> arr1(data, 3);
+    DynamicArray<int> arr2(arr1);
+    ASSERT_EQ(arr2.GetSize(), 3);
+    ASSERT_EQ(arr2.Get(1), 5);
+}
+
+TEST(DynamicArray_GetSet) {
+    DynamicArray<int> arr(3);
+    arr.Set(0, 10);
+    arr.Set(1, 20);
+    arr.Set(2, 30);
+    ASSERT_EQ(arr.Get(0), 10);
+    ASSERT_EQ(arr.Get(1), 20);
+    ASSERT_EQ(arr.Get(2), 30);
+    ASSERT_THROWS(arr.Get(3), IndexOutOfRange);
+    ASSERT_THROWS(arr.Set(3, 40), IndexOutOfRange);
+}
+
+TEST(DynamicArray_Resize) {
+    DynamicArray<int> arr(2);
+    arr.Set(0, 1);
+    arr.Set(1, 2);
+    arr.Resize(4);
+    ASSERT_EQ(arr.GetSize(), 4);
+    ASSERT_EQ(arr.Get(0), 1);
+    ASSERT_EQ(arr.Get(1), 2);
+    arr.Resize(1);
+    ASSERT_EQ(arr.GetSize(), 1);
+    ASSERT_EQ(arr.Get(0), 1);
+}
+
+TEST(DynamicArray_Enumerator) {
+    int data[] = {1, 2, 3};
+    DynamicArray<int> arr(data, 3);
+    auto en = arr.GetEnumerator();
+    ASSERT_EQ(en->MoveNext(), true);
+    ASSERT_EQ(en->GetCurrent(), 1);
+    ASSERT_EQ(en->MoveNext(), true);
+    ASSERT_EQ(en->GetCurrent(), 2);
+    ASSERT_EQ(en->MoveNext(), true);
+    ASSERT_EQ(en->GetCurrent(), 3);
+    ASSERT_EQ(en->MoveNext(), false);
+    delete en;
+}
+
+// -------------------- Tests for LinkedList --------------------
+
+TEST(LinkedList_DefaultConstructor) {
+    LinkedList<int> list;
+    ASSERT_EQ(list.GetLength(), 0);
+}
+
+TEST(LinkedList_ConstructorFromArray) {
+    int data[] = {1, 2, 3};
+    LinkedList<int> list(data, 3);
+    ASSERT_EQ(list.GetLength(), 3);
+    ASSERT_EQ(list.Get(0), 1);
+    ASSERT_EQ(list.Get(2), 3);
+}
+
+TEST(LinkedList_CopyConstructor) {
+    int data[] = {4, 5, 6};
+    LinkedList<int> list1(data, 3);
+    LinkedList<int> list2(list1);
+    ASSERT_EQ(list2.GetLength(), 3);
+    ASSERT_EQ(list2.Get(1), 5);
+}
+
+TEST(LinkedList_Append) {
+    LinkedList<int> list;
+    list.Append(10);
+    list.Append(20);
+    ASSERT_EQ(list.GetLength(), 2);
+    ASSERT_EQ(list.Get(0), 10);
+    ASSERT_EQ(list.Get(1), 20);
+}
+
+TEST(LinkedList_Prepend) {
+    LinkedList<int> list;
+    list.Append(30);
+    list.Prepend(10);
+    list.Prepend(5);
+    ASSERT_EQ(list.GetLength(), 3);
+    ASSERT_EQ(list.Get(0), 5);
+    ASSERT_EQ(list.Get(1), 10);
+    ASSERT_EQ(list.Get(2), 30);
+}
+
+TEST(LinkedList_InsertAt) {
+    LinkedList<int> list;
+    list.Append(1);
+    list.Append(3);
+    list.InsertAt(2, 1);
+    ASSERT_EQ(list.GetLength(), 3);
+    ASSERT_EQ(list.Get(1), 2);
+    list.InsertAt(0, 0);
+    ASSERT_EQ(list.Get(0), 0);
+    list.InsertAt(4, 4);
+    ASSERT_EQ(list.Get(4), 4);
+    ASSERT_THROWS(list.InsertAt(99, 10), IndexOutOfRange);
+}
+
+TEST(LinkedList_Get) {
+    LinkedList<int> list;
+    list.Append(10);
+    list.Append(20);
+    list.Append(30);
+    ASSERT_EQ(list.Get(0), 10);
+    ASSERT_EQ(list.Get(1), 20);
+    ASSERT_THROWS(list.Get(3), IndexOutOfRange);
+}
+
+TEST(LinkedList_Concat) {
+    int a[] = {1, 2};
+    int b[] = {3, 4};
+    LinkedList<int> listA(a, 2);
+    LinkedList<int> listB(b, 2);
+    LinkedList<int> *concat = listA.Concat(listB);
+    ASSERT_EQ(concat->GetLength(), 4);
+    ASSERT_EQ(concat->Get(0), 1);
+    ASSERT_EQ(concat->Get(2), 3);
+    delete concat;
+}
+
+TEST(LinkedList_Enumerator) {
+    int data[] = {1, 2, 3};
+    LinkedList<int> list(data, 3);
+    auto en = list.GetEnumerator();
+    ASSERT_EQ(en->MoveNext(), true);
+    ASSERT_EQ(en->GetCurrent(), 1);
+    ASSERT_EQ(en->MoveNext(), true);
+    ASSERT_EQ(en->GetCurrent(), 2);
+    ASSERT_EQ(en->MoveNext(), true);
+    ASSERT_EQ(en->GetCurrent(), 3);
+    ASSERT_EQ(en->MoveNext(), false);
+    delete en;
+}
+
+// -------------------- Tests for Sequence Interface --------------------
+
+TEST(Sequence_Interface) {
+    MutableArraySequence<int> seq;
+    seq.Append(1);
+    seq.Append(2);
+    seq.Append(3);
+    Sequence<int> *s = &seq;
+    ASSERT_EQ(s->GetLength(), 3);
+    ASSERT_EQ(s->GetFirst(), 1);
+    ASSERT_EQ(s->GetLast(), 3);
+    ASSERT_EQ((*s)[1], 2);
+    Sequence<int> *sub = s->GetSubsequence(0, 1);
+    ASSERT_EQ(sub->GetLength(), 2);
+    ASSERT_EQ(sub->Get(0), 1);
+    ASSERT_EQ(sub->Get(1), 2);
+    delete sub;
+    Sequence<int> *concat = s->Concat(seq);
+    ASSERT_EQ(concat->GetLength(), 6);
+    delete concat;
 }
 
 // -------------------- Tests for Utilities: Split (ArraySequence) --------------------
@@ -699,7 +883,7 @@ TEST(ImmutableArraySequence_Concat) {
     int b[] = {3, 4};
     ImmutableArraySequence<int> seqA(a, 2);
     ImmutableArraySequence<int> seqB(b, 2);
-    Sequence<int> *concat = seqA.Concat(&seqB);
+    Sequence<int> *concat = seqA.Concat(seqB);
     ASSERT_EQ(concat->GetLength(), 4);
     ASSERT_EQ(concat->Get(0), 1);
     ASSERT_EQ(concat->Get(2), 3);
@@ -807,7 +991,7 @@ TEST(ImmutableListSequence_Concat) {
     int b[] = {3, 4};
     ImmutableListSequence<int> seqA(a, 2);
     ImmutableListSequence<int> seqB(b, 2);
-    Sequence<int> *concat = seqA.Concat(&seqB);
+    Sequence<int> *concat = seqA.Concat(seqB);
     ASSERT_EQ(concat->GetLength(), 4);
     ASSERT_EQ(concat->Get(0), 1);
     ASSERT_EQ(concat->Get(2), 3);
