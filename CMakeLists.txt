@@ -17,11 +17,16 @@ target_compile_features(sequence INTERFACE cxx_std_17)
 # ------------------------------------------------------------
 # Executable programs
 # ------------------------------------------------------------
-add_executable(app main.cpp)
-target_link_libraries(app PRIVATE sequence)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    add_executable(app main.cpp)
+    target_link_libraries(app PRIVATE sequence)
 
-add_executable(run_tests test.cpp)
-target_link_libraries(run_tests PRIVATE sequence)
+    add_executable(run_tests test.cpp)
+    target_link_libraries(run_tests PRIVATE sequence)
+
+    enable_testing()
+    add_test(NAME DataStructuresTests COMMAND run_tests)
+endif()
 
 # ------------------------------------------------------------
 # Adding tests to CTests
