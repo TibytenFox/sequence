@@ -8,7 +8,7 @@ add_library(sequence INTERFACE)
 
 # Public include path: all headers are located in the sequence/ folder
 target_include_directories(sequence INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/sequence
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # Minimum required language standard (C++17 is sufficient for all code)
