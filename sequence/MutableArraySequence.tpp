@@ -3,6 +3,7 @@
 template <class T>
 MutableArraySequence<T> &MutableArraySequence<T>::operator=(const MutableArraySequence<T> &other) {
     if (this != &other) {
+        this->size = other.size;
         this->items = other.items;
     }
     return *this;
@@ -24,11 +25,13 @@ bool MutableArraySequence<T>::operator!=(const MutableArraySequence<T> &other) c
 
 template <class T>
 T &MutableArraySequence<T>::operator[](int index) {
+    if (index < 0 || index >= this->size) throw IndexOutOfRange("operator[]: Index out of range");
     return this->items[index];
 }
 
 template <class T>
 const T &MutableArraySequence<T>::operator[](int index) const {
+    if (index < 0 || index >= this->size) throw IndexOutOfRange("operator[]: Index out of range");
     return this->items.Get(index);
 }
 

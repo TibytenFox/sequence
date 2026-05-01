@@ -3,7 +3,7 @@
 // ---------- Constructors and Destructor ----------
 
 template <class T>
-ArraySequence<T>::ArraySequence() : size(0), items(0) {}
+ArraySequence<T>::ArraySequence() : size(0), items(10) {}
 
 template <class T>
 ArraySequence<T>::ArraySequence(int count) : size(0), items(count) {}
@@ -38,12 +38,14 @@ const T &ArraySequence<T>::Get(int index) const {
 }
 
 template <class T>
-int ArraySequence<T>::GetLength() const { return this->size; }
+int ArraySequence<T>::GetLength() const { 
+    return this->size; 
+}
 
 // Caller is responsible for deleting the returned pointer
 template <class T>
 Sequence<T> *ArraySequence<T>::GetSubsequence(int start_index, int end_index) const {
-    if (start_index < 0 || end_index >= this->items.GetSize() || start_index > end_index) {
+    if (start_index < 0 || end_index >= this->GetLength() || start_index > end_index) {
         throw IndexOutOfRange("GetSubSequence: Invalid indicies");
     }
 
@@ -96,7 +98,7 @@ Sequence<T> *ArraySequence<T>::Concat(const Sequence<T> &list) const {
 
 template <class T>
 IEnumerator<T> *ArraySequence<T>::GetEnumerator() const {
-    return this->items.GetEnumerator();
+    return new Enumerator(this);
 }
 
 // ---------- Internal Methods (modify in place) ----------

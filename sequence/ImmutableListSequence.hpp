@@ -27,8 +27,8 @@ public:
             return this;
         }
 
-        virtual Sequence<T> *Build() override {
-            Sequence<T> *res = seq;
+        virtual ImmutableListSequence<T> *Build() override {
+            ImmutableListSequence<T> *res = seq;
             seq = nullptr;
             return res;
         }

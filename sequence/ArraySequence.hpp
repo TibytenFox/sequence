@@ -11,6 +11,29 @@ protected:
     DynamicArray<T> items;    // Using dynamic array
 
 public:
+    class Enumerator : public IEnumerator<T> {
+    private:
+        const ArraySequence<T> *seq;
+        int current_index;
+    public:
+        explicit Enumerator(const ArraySequence<T> *ptr) : seq(ptr), current_index(-1) {}
+
+        bool MoveNext() override {
+            if (this->current_index + 1 < this->seq->GetLength()) {
+                this->current_index++;
+                return true;
+            }
+            return false;
+        }
+
+        const T &GetCurrent() const override {
+            if (this->current_index < 0 || this->current_index >= this->seq->GetLength()) {
+                throw IndexOutOfRange("Enumerator: out of bounds");
+            }
+            return this->seq->Get(current_index);
+        }
+    };
+
     // ---------- Constructors and Destructor ----------
     ArraySequence();
     explicit ArraySequence(int count);

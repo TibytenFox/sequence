@@ -27,9 +27,3 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     enable_testing()
     add_test(NAME DataStructuresTests COMMAND run_tests)
 endif()
-
-# ------------------------------------------------------------
-# Adding tests to CTests
-# ------------------------------------------------------------
-enable_testing()
-add_test(NAME DataStructuresTests COMMAND run_tests)

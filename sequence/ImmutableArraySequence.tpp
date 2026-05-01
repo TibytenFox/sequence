@@ -3,6 +3,7 @@
 template <class T>
 ImmutableArraySequence<T> &ImmutableArraySequence<T>::operator=(const ImmutableArraySequence<T> &other) {
 	if (this != &other) {
+		this->size = other.size;
 		this->items = other.items;
 	}
 	return *this;
@@ -24,6 +25,7 @@ bool ImmutableArraySequence<T>::operator!=(const ImmutableArraySequence<T> &othe
 
 template <class T>
 const T &ImmutableArraySequence<T>::operator[](int index) const {
+	if (index < 0 || index >= this->size) throw IndexOutOfRange("operator[]: Index out of range");
 	return this->items.Get(index);
 }
 

@@ -140,6 +140,7 @@ TEST(ArraySequence_Map) {
     MutableArraySequence<int> seq;
     seq.Append(1); seq.Append(2); seq.Append(3);
     Sequence<int> *squares = seq.Map([](int x) { return x * x; });
+    // legnth squeares: 10
     ASSERT_EQ(squares->GetLength(), 3);
     ASSERT_EQ(squares->Get(0), 1);
     ASSERT_EQ(squares->Get(1), 4);
