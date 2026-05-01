@@ -96,6 +96,11 @@ Sequence<T> *ArraySequence<T>::Concat(const Sequence<T> &list) const {
     return concat_sequence;
 }
 
+template <class T>
+int ArraySequence<T>::GetCapacity() const {
+    return items.GetSize();
+}
+
 // ---------- Iterators ----------
 
 template <class T>

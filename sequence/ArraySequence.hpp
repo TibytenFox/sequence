@@ -54,6 +54,8 @@ public:
     virtual Sequence<T> *InsertAt(T item, int index) override;
     virtual Sequence<T> *Concat(const Sequence<T> &list) const override;
 
+    int GetCapacity() const;
+
     // ---------- Iterators ----------
     virtual IEnumerator<T> *GetEnumerator() const override;
 
