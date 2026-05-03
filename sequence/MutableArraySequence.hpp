@@ -39,6 +39,7 @@ public:
     }
 
     MutableArraySequence() : ArraySequence<T>() {}
+    explicit MutableArraySequence(int count) : ArraySequence<T>(count) {}
     MutableArraySequence(T *items, int count) : ArraySequence<T>(items, count) {}
     MutableArraySequence(const ArraySequence<T> &other) : ArraySequence<T> (other) {}
     MutableArraySequence(const MutableArraySequence<T> &other) : ArraySequence<T> (other) {}

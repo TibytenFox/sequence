@@ -39,6 +39,7 @@ public:
     }
 
     ImmutableArraySequence() : ArraySequence<T>() {}
+    explicit ImmutableArraySequence(int count) : ArraySequence<T>(count) {}
     ImmutableArraySequence(T *items, int count) : ArraySequence<T>(items, count) {}
     ImmutableArraySequence(const ArraySequence<T> &other) : ArraySequence<T>(other) {}
     ImmutableArraySequence(const ImmutableArraySequence<T> &other) : ArraySequence<T>(other) {}
