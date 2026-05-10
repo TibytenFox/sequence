@@ -150,7 +150,7 @@ void LinkedList<T>::InsertAt(T item, int index) {
 
 template <class T>
 T LinkedList<T>::RemoveAt(int index) {
-    if (size == 0) throw EmptyCollectionError("RemoveAr(): Empty collection");
+    if (size == 0) throw EmptyCollectionError("RemoveAt(): Empty collection");
     if (index < 0 || index > size) throw IndexOutOfRange("RemoveAt(): Index out of range");
 
     Node *current = head;
@@ -160,6 +160,7 @@ T LinkedList<T>::RemoveAt(int index) {
 
     T res = node->value;
     delete node;
+    size--;
     return res;
 }
 

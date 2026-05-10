@@ -63,7 +63,7 @@ public:
     void Append(T item);                       // Add element at the end
     void Prepend(T item);                      // Add element at the beginning
     void InsertAt(T item, int index);          // Insert at position
-    T RemoveAt(int index);                  // Remove at position
+    T RemoveAt(int index);                     // Remove at position
     LinkedList<T> *Concat(const LinkedList<T> &list); // Returns new heap-allocated list
 
     // ---------- Iteration support ----------
