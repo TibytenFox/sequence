@@ -149,19 +149,14 @@ void LinkedList<T>::InsertAt(T item, int index) {
 }
 
 template <class T>
-T LinkedList<T>::RemoveAt(int index) {
+T LinkedList<T>::Remove(const IEnumerator<T> *en) {
     if (size == 0) throw EmptyCollectionError("RemoveAt(): Empty collection");
-    if (index < 0 || index > size) throw IndexOutOfRange("RemoveAt(): Index out of range");
-
-    Node *current = head;
-    for (int i = 0; i < index - 1; i++) current = current->next;
-    Node *node = current->next;
-    current->next = current->next->next; 
-
-    T res = node->value;
-    delete node;
-    size--;
-    return res;
+    Node current = en->GetCurrent();
+    if (current == *head) head = current.next;
+    if (current == *tail) tail = current.prev;
+    current.prev->next = current.next;
+    current.next->prev = current.prev;
+    delete &current;
 }
 
 template <class T>
