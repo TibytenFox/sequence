@@ -1,11 +1,11 @@
 #include "ArraySequence.hpp"
 
-#define DEFAULT_CAPACIOTY 10
+#define DEFAULT_CAPACITY 10
 
 // ---------- Constructors and Destructor ----------
 
 template <class T>
-ArraySequence<T>::ArraySequence() : size(0), items(DEFAULT_CAPACIOTY) {}
+ArraySequence<T>::ArraySequence() : size(0), items(DEFAULT_CAPACITY) {}
 
 template <class T>
 ArraySequence<T>::ArraySequence(int count) : size(0), items(count) {}
