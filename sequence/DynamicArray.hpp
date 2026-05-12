@@ -52,6 +52,7 @@ public:
     DynamicArray<T> &operator=(const DynamicArray<T> &other);
     DynamicArray<T> &operator=(DynamicArray<T> &&other) noexcept;
     T &operator[](int index);
+    const T &operator[](int index) const;
 
 };
 

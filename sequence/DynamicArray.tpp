@@ -104,3 +104,12 @@ T &DynamicArray<T>::operator[](int index) {
     }
     return this->data[index];
 }
+
+template <class T>
+const T &DynamicArray<T>::operator[](int index) const {
+    if (index < 0 || index >= this->GetSize()) {
+        throw IndexOutOfRange("Operator[]: Index out of range");
+    }
+    return this->data[index];
+}
+
