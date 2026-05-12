@@ -8,7 +8,11 @@ template <class T>
 ArraySequence<T>::ArraySequence() : size(0), items(DEFAULT_CAPACITY) {}
 
 template <class T>
-ArraySequence<T>::ArraySequence(int count) : size(0), items(count) {}
+ArraySequence<T>::ArraySequence(int count) : size(count), items(count * 2) {
+    for (int i = 0; i < count; i++) {
+        items[i] = T();
+    }
+}
 
 template <class T>
 ArraySequence<T>::ArraySequence(T *items, int count) : size(count), items(items, count) {}
@@ -112,7 +116,7 @@ IEnumerator<T> *ArraySequence<T>::GetEnumerator() const {
 
 template <class T>
 ArraySequence<T> *ArraySequence<T>::AppendInternal(T item) {
-    if (this->items.GetSize() <= this->size) this->items.Resize(this->size + 1);
+    if (this->items.GetSize() <= this->size) this->items.Resize(this->size * 2);
     this->size++;
     this->items.Set(this->size - 1, item);
     return this;
@@ -120,7 +124,7 @@ ArraySequence<T> *ArraySequence<T>::AppendInternal(T item) {
 
 template <class T>
 ArraySequence<T> *ArraySequence<T>::PrependInternal(T item) {
-    if (this->items.GetSize() <= this->size) this->items.Resize(this->size + 1);
+    if (this->items.GetSize() <= this->size) this->items.Resize(this->size * 2);
     this->size++;
     for (int i = this->size - 1; i > 0; i--) {
         this->items.Set(i, this->items.Get(i - 1));
@@ -134,7 +138,7 @@ ArraySequence<T> *ArraySequence<T>::InsertAtInternal(T item, int index) {
     if (index < 0 || index > this->items.GetSize()) {
         throw IndexOutOfRange("InsertAt: invalid index");
     }
-    if (this->items.GetSize() <= this->size) this->items.Resize(this->size + 1);
+    if (this->items.GetSize() <= this->size) this->items.Resize(this->size * 2);
     this->size++;
     for (int i = this->size - 1; i > index; i--) {
         this->items.Set(i, this->items.Get(i - 1));
